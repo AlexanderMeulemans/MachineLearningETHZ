@@ -1,7 +1,7 @@
 import numpy as np
 from scipy import stats
-from sklearn.impute import SimpleImputer
 from sklearn.feature_selection import VarianceThreshold, f_regression, mutual_info_regression, SelectPercentile
+from sklearn.impute import SimpleImputer
 from sklearn import preprocessing
 from sklearn.neighbors import LocalOutlierFactor
 from sklearn.svm import SVR
@@ -45,9 +45,9 @@ f.close()
 
 # -------------------------- PREPROCESSING -----------------------------
 # Imputing the missing values
+imputer_test = SimpleImputer()
+X_imputed = imputer_test.fit_transform(X)
 imputer = SimpleImputer()
-X_imputed = imputer.fit_transform(X)
-
 # Standardize the data (because the features are very large, not optimal for ML)
 scaler_test = preprocessing.StandardScaler().fit(X_imputed)
 X_scaled = scaler_test.transform(X_imputed)
@@ -136,11 +136,14 @@ svr_poly = SVR(kernel='poly')
 
 
 
-svr_rbf_pipeline = Pipeline([('variance', variance_selector), ('MI', MI_selector),
+svr_rbf_pipeline = Pipeline([('imputer', imputer), ('standardizer', scaler),
+                             ('variance', variance_selector), ('MI', MI_selector),
                              ('svr', svr_rbf)])
-svr_lin_pipeline = Pipeline([('variance', variance_selector), ('MI', MI_selector),
+svr_lin_pipeline = Pipeline([('imputer', imputer), ('standardizer', scaler),
+                             ('variance', variance_selector), ('MI', MI_selector),
                              ('svr', svr_lin)])
-svr_poly_pipeline = Pipeline([('variance', variance_selector), ('MI', MI_selector),
+svr_poly_pipeline = Pipeline([('imputer', imputer), ('standardizer', scaler),
+                              ('variance', variance_selector), ('MI', MI_selector),
                              ('svr', svr_poly)])
 
 # Run models in a cross validation
@@ -149,21 +152,21 @@ cross_val_output(X,y,svr_lin_pipeline,'SVR LIN', name_outputfile,cv = 5)
 cross_val_output(X,y,svr_poly_pipeline,'SVR POLY', name_outputfile,cv = 5)
 
 # Grid search
-# param_grid_svr_rbf = {
-#     'svr__C': stats.expon(scale=100),
-#     'svr__gamma': stats.expon(scale=.1)}
-#
-# param_grid_svr_lin = {
-#     'svr__C': stats.expon(scale=100)}
-#
-# param_grid_svr_poly = {
-#     'svr__C': stats.expon(scale=100),
-#     'svr__gamma': [2, 3, 4]}
-#
-# search_svr_rbf = RandomizedSearchCV(svr_rbf_pipeline, param_grid_svr_rbf, cv=5)
-# search_svr_rbf.fit(X, y)
-# print("Best parameter (CV score=%0.3f):" % search_svr_rbf.best_score_)
-# print(search_svr_rbf.best_params_)
+param_grid_svr_rbf = {
+    'svr__C': stats.expon(scale=100),
+    'svr__gamma': stats.expon(scale=.1)}
+
+param_grid_svr_lin = {
+    'svr__C': stats.expon(scale=100)}
+
+param_grid_svr_poly = {
+    'svr__C': stats.expon(scale=100),
+    'svr__gamma': [2, 3, 4]}
+
+search_svr_rbf = RandomizedSearchCV(svr_rbf_pipeline, param_grid_svr_rbf, cv=5)
+search_svr_rbf.fit(X, y)
+print("Best parameter (CV score=%0.3f):" % search_svr_rbf.best_score_)
+print(search_svr_rbf.best_params_)
 
 
 
