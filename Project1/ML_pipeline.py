@@ -7,9 +7,11 @@ from sklearn.neighbors import LocalOutlierFactor
 from sklearn.svm import SVR
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import RandomizedSearchCV
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import RBF, Matern, ConstantKernel
 from data_setup import X,y
 from helper_classes import OutlierExtractor
-from helper_functions import cross_val_output
+from helper_functions import cross_val_output, grid_search_output
 import matplotlib.pyplot as plt
 
 """
@@ -29,7 +31,7 @@ name_outputfile = "outputfile1"
 variance_threshold = 0
 percentile = 40  # percentile of best features to be selected in the feature selection
 outlier_threshold = -1.2 # threshold used to remove outliers
-plots = True
+plots = False
 
 
 # Create output file (delete old outputfile if it exists with the same name)
@@ -107,7 +109,7 @@ pred_outliers = clf.fit_predict(X_MI_selected)  # -1 if outlier, 1 if inlier
 outlier_scores = clf.negative_outlier_factor_
 
 outlier_extractor = OutlierExtractor(neg_conf_val=outlier_threshold)
-X_outlier_removed,y_outlier_removed = outlier_extractor.transform(X_MI_selected,y)
+X_outlier_removed,y_outlier_removed = outlier_extractor.transform(X_imputed,y)
 
 if plots:
     ind = np.arange(len(outlier_scores))
@@ -134,6 +136,12 @@ svr_rbf = SVR(kernel='rbf')
 svr_lin = SVR(kernel='linear')
 svr_poly = SVR(kernel='poly')
 
+GP_rbf = GaussianProcessRegressor()
+GP_matern = GaussianProcessRegressor(kernel=Matern)
+GP_constant = GaussianProcessRegressor(kernel = ConstantKernel)
+
+
+
 
 
 svr_rbf_pipeline = Pipeline([('imputer', imputer), ('standardizer', scaler),
@@ -146,6 +154,16 @@ svr_poly_pipeline = Pipeline([('imputer', imputer), ('standardizer', scaler),
                               ('variance', variance_selector), ('MI', MI_selector),
                              ('svr', svr_poly)])
 
+GP_rbf_pipeline = Pipeline([('imputer', imputer), ('standardizer', scaler),
+                             ('variance', variance_selector), ('MI', MI_selector),
+                             ('GP', GP_rbf)])
+GP_matern_pipeline = Pipeline([('imputer', imputer), ('standardizer', scaler),
+                             ('variance', variance_selector), ('MI', MI_selector),
+                             ('GP', GP_matern)])
+GP_constant_pipeline = Pipeline([('imputer', imputer), ('standardizer', scaler),
+                              ('variance', variance_selector), ('MI', MI_selector),
+                             ('GP', GP_constant)])
+
 # Run models in a cross validation
 cross_val_output(X,y,svr_rbf_pipeline,'SVR RBF', name_outputfile,cv = 5)
 cross_val_output(X,y,svr_lin_pipeline,'SVR LIN', name_outputfile,cv = 5)
@@ -153,20 +171,31 @@ cross_val_output(X,y,svr_poly_pipeline,'SVR POLY', name_outputfile,cv = 5)
 
 # Grid search
 param_grid_svr_rbf = {
-    'svr__C': stats.expon(scale=100),
-    'svr__gamma': stats.expon(scale=.1)}
+    'svr__C': stats.expon(scale=50),
+    'svr__gamma': stats.expon(scale=1/X_MI_selected.shape[1])}
 
 param_grid_svr_lin = {
-    'svr__C': stats.expon(scale=100)}
+    'svr__C': stats.expon(scale=50)}
 
 param_grid_svr_poly = {
-    'svr__C': stats.expon(scale=100),
+    'svr__C': stats.expon(scale=50),
     'svr__gamma': [2, 3, 4]}
 
-search_svr_rbf = RandomizedSearchCV(svr_rbf_pipeline, param_grid_svr_rbf, cv=5)
-search_svr_rbf.fit(X, y)
-print("Best parameter (CV score=%0.3f):" % search_svr_rbf.best_score_)
-print(search_svr_rbf.best_params_)
+param_grid_GP = {
+    'GP__alpha': stats.expon(scale=1e-10)
+}
+
+
+search_svr_rbf = grid_search_output(X,y,svr_rbf_pipeline,param_grid_svr_rbf, 'SVR RBF', name_outputfile, 5 , 'r2', 10)
+print('SVR_RBF done')
+search_GP_rbf = grid_search_output(X,y,GP_rbf_pipeline,param_grid_GP, 'GP RBF', name_outputfile, 5 , 'r2', 10)
+print('GP_RBF done')
+search_GP_matern = grid_search_output(X,y,GP_matern_pipeline,param_grid_GP, 'GP Matern', name_outputfile, 5 , 'r2', 10)
+print('GP_Matern done')
+search_GP_constant = grid_search_output(X,y,GP_constant_pipeline,param_grid_GP, 'GP Constant', name_outputfile, 5 , 'r2', 10)
+print('GP_Constnant done')
+
+
 
 
 
