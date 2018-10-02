@@ -1,5 +1,6 @@
 import numpy as np
 from scipy import stats
+from sklearn.impute import SimpleImputer
 from sklearn.feature_selection import VarianceThreshold, f_regression, mutual_info_regression, SelectPercentile
 from sklearn import preprocessing
 from sklearn.neighbors import LocalOutlierFactor
@@ -43,9 +44,13 @@ f.write('\n')
 f.close()
 
 # -------------------------- PREPROCESSING -----------------------------
+# Imputing the missing values
+imputer = SimpleImputer()
+X_imputed = imputer.fit_transform(X)
+
 # Standardize the data (because the features are very large, not optimal for ML)
-scaler_test = preprocessing.StandardScaler().fit(X)
-X_scaled = scaler_test.transform(X)
+scaler_test = preprocessing.StandardScaler().fit(X_imputed)
+X_scaled = scaler_test.transform(X_imputed)
 scaler = preprocessing.StandardScaler() # will be used later on in the cross validation pipeline
 
 # --------------------- FEATURE SELECTION METHODS ----------------------
@@ -128,6 +133,8 @@ f.close()
 svr_rbf = SVR(kernel='rbf')
 svr_lin = SVR(kernel='linear')
 svr_poly = SVR(kernel='poly')
+
+
 
 svr_rbf_pipeline = Pipeline([('variance', variance_selector), ('MI', MI_selector),
                              ('svr', svr_rbf)])
