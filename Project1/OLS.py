@@ -41,6 +41,7 @@ take perturbations into account (e.g. missing values)
 # Pipeline user variables
 name_outputfile = "outputfile2"
 variance_threshold = 0
+
 percentile = 40  # percentile of best features to be selected in the feature selection
 outlier_threshold = -1.1 # threshold used to remove outliers
 plots = True
