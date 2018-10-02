@@ -41,8 +41,7 @@ take perturbations into account (e.g. missing values)
 # Pipeline user variables
 name_outputfile = "outputfile2"
 variance_threshold = 0
-
-percentile = 40  # percentile of best features to be selected in the feature selection
+percentile = 20 # percentile of best features to be selected in the feature selection
 outlier_threshold = -1.1 # threshold used to remove outliers
 plots = True
 
@@ -94,30 +93,6 @@ f.write(str(X_MI_selected.shape[1]))
 f.write('\n')
 f.close()
 
-# ------------------- Outlier detection ----------------------
-
-# fit the model for outlier detection (default)
-clf = LocalOutlierFactor(n_neighbors=20, contamination=0.1)
-# use fit_predict to compute the predicted labels of the training samples
-# (when LOF is used for outlier detection, the estimator has no predict,
-# decision_function and score_samples methods).
-pred_outliers = clf.fit_predict(X_MI_selected)  # -1 if outlier, 1 if inlier
-outlier_scores = clf.negative_outlier_factor_
-
-outlier_extractor = OutlierExtractor(neg_conf_val=outlier_threshold)
-X_outlier_removed,y_outlier_removed = outlier_extractor.transform(X_MI_selected,y)
-
-
-f = open(name_outputfile, 'a')
-f.write('Outlier removal ________________ \n')
-f.write('Number of selected samples: ')
-f.write(str(X_outlier_removed.shape[0]))
-f.write('\n')
-f.write('Threshold used: ')
-f.write(str(outlier_threshold))
-f.write('\n')
-f.close()
-
 # ---------------------- ML methods and pipelines --------------------------
 #%% Ordinary Least Square
 OLS = linear_model.LinearRegression()
@@ -133,6 +108,7 @@ Ridge_pipeline = Pipeline([('imputer', imputer), ('standardizer', scaler),
 cross_val_output(X,y,Ridge_pipeline,'Ridge: ', name_outputfile,cv = 5)
 
 #%% Elastic Net
+
 Net = linear_model.ElasticNet()
 Net_pipeline = Pipeline([('imputer', imputer), ('standardizer', scaler),
                              ('variance', variance_selector), ('MI', MI_selector),
@@ -140,3 +116,34 @@ Net_pipeline = Pipeline([('imputer', imputer), ('standardizer', scaler),
 
 
 cross_val_output(X,y,Net_pipeline,'Net: ', name_outputfile,cv = 5)
+#%% Lars Lasso
+
+Lars = linear_model.LassoLars()
+Lars_pipeline = Pipeline([('imputer', imputer), ('standardizer', scaler),
+                             ('variance', variance_selector), ('MI', MI_selector),
+                             ('Lars', Lars)])
+
+
+cross_val_output(X,y,Lars_pipeline,'Lars: ', name_outputfile,cv = 5)
+#%% BayesianRidge
+Bay = linear_model.BayesianRidge()
+Bay_pipeline = Pipeline([('imputer', imputer), ('standardizer', scaler),
+                             ('variance', variance_selector), ('MI', MI_selector),
+                             ('Bay', Bay)])
+
+
+cross_val_output(X,y,Bay_pipeline,'BayesianRidge: ', name_outputfile,cv = 5)
+
+#%%
+#K = [0.1, 0.5, 1, 2, 5]
+#rel = [0.5, 1, 2]
+#for k in K:
+#    for r in rel:
+#        Net = linear_model.ElasticNet(alpha = k,l1_ratio=r)
+#        Net_pipeline = Pipeline([('imputer', imputer), ('standardizer', scaler),
+#                                     ('variance', variance_selector), ('MI', MI_selector),
+#                                     ('Elastic Net', Net)])
+#        f = open(name_outputfile, 'a')
+#        f.write('alpha: %s\n l1_ratio: %s \n' %(k,r))
+#        
+#        cross_val_output(X,y,Net_pipeline,'Net: ', name_outputfile,cv = 5)
