@@ -6,3 +6,8 @@ Variance threshold ________________
 number of selected features: 883
 Mutual information ________________ 
 number of selected features: 353
+Outlier removal ________________ 
+Number of selected samples: 1179
+Threshold used: -1.2
+SVR RBF _______________________________________
+R^2 score: -0.00144572257104 
