@@ -1,0 +1,8 @@
+========== General ==========
+Number of features: 887
+Number of training samples: 1212
+========== Feature selection ==========
+Variance threshold ________________
+number of selected features: 883
+Mutual information ________________ 
+number of selected features: 353
