@@ -49,11 +49,9 @@ def pre_processing(X,percentile, cariance_threshold):
     return X_new
 
 def remove_outliers(X,y,outlier_threshold):
-    
     outlier_extractor = OutlierExtractor(neg_conf_val=outlier_threshold)
-    X_out_removed,y_out_removed = outlier_extractor.transform(X,y)
-    
-    return X_out_removed,y_out_removed
+    X_outlier_removed,y_outlier_removed = outlier_extractor.transform(X,y)
+    return X_out_remov,
 
 
 # --------------------- FEATURE SELECTION METHODS ----------------------
