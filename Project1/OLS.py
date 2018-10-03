@@ -41,9 +41,9 @@ take perturbations into account (e.g. missing values)
 # Pipeline user variables
 name_outputfile = "outputfile2"
 variance_threshold = 0
-percentile = 20 # percentile of best features to be selected in the feature selection
+percentile = 2 # percentile of best features to be selected in the feature selection
 outlier_threshold = -1.1 # threshold used to remove outliers
-plots = True
+
 
 #%%
 f = open(name_outputfile, 'w+')
@@ -116,15 +116,7 @@ Net_pipeline = Pipeline([('imputer', imputer), ('standardizer', scaler),
 
 
 cross_val_output(X,y,Net_pipeline,'Net: ', name_outputfile,cv = 5)
-#%% Lars Lasso
 
-Lars = linear_model.LassoLars()
-Lars_pipeline = Pipeline([('imputer', imputer), ('standardizer', scaler),
-                             ('variance', variance_selector), ('MI', MI_selector),
-                             ('Lars', Lars)])
-
-
-cross_val_output(X,y,Lars_pipeline,'Lars: ', name_outputfile,cv = 5)
 #%% BayesianRidge
 Bay = linear_model.BayesianRidge()
 Bay_pipeline = Pipeline([('imputer', imputer), ('standardizer', scaler),
@@ -133,6 +125,16 @@ Bay_pipeline = Pipeline([('imputer', imputer), ('standardizer', scaler),
 
 
 cross_val_output(X,y,Bay_pipeline,'BayesianRidge: ', name_outputfile,cv = 5)
+
+#%% BayesianRidge
+SVM = SVR()
+SVM_pipeline = Pipeline([('imputer', imputer), ('standardizer', scaler),
+                             ('variance', variance_selector), ('MI', MI_selector),
+                             ('SVM', SVM)])
+
+
+cross_val_output(X,y,SVM_pipeline,'SVM: ', name_outputfile,cv = 5)
+
 
 #%%
 #K = [0.1, 0.5, 1, 2, 5]

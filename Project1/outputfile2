@@ -5,14 +5,22 @@ Number of training samples: 1212
 Variance threshold ________________
 number of selected features: 883
 Mutual information ________________ 
-number of selected features: 89
+number of selected features: 18
 OLS:  _______________________________________
-R^2 score: 0.2720966705451715 
+R^2 score: 0.3055905510928947 
 Ridge:  _______________________________________
-R^2 score: 0.2702868367686341 
+R^2 score: 0.30985670915341756 
 Net:  _______________________________________
-R^2 score: 0.3094558068562395 
+R^2 score: 0.3045127731959073 
 BayesianRidge:  _______________________________________
-R^2 score: 0.32810278951346916 
+R^2 score: 0.3157453807650771 
 SVM:  _______________________________________
-R^2 score: 0.45371785662770414 
+R^2 score: 0.46945786684659885 
+========== Feature selection ==========
+Variance threshold ________________
+number of selected features: 883
+Mutual information ________________ 
+number of selected features: 27
+Outlier removal ________________ 
+Number of selected samples: 1029
+Threshold used: -1.2
