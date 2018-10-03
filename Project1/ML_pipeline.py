@@ -80,7 +80,7 @@ if plots:
 
 # Mutual information
 X_MI_selected = SelectPercentile(mutual_info_regression, percentile).fit_transform(X_variance_selected, y)
-MI_selector = SelectPercentile(mutual_info_regression, percentile)  # will be used later on in the cross validation pipeline
+MI_selector = SelectPercentile(mutual_info_regression)  # will be used later on in the cross validation pipeline
 
 f = open(name_outputfile, 'a')
 f.write('Mutual information ________________ \n')
@@ -171,8 +171,9 @@ cross_val_output(X,y,svr_poly_pipeline,'SVR POLY', name_outputfile,cv = 5)
 
 # Grid search
 param_grid_svr_rbf = {
-    'svr__C': stats.expon(scale=50),
-    'svr__gamma': stats.expon(scale=1/X_MI_selected.shape[1])}
+    'MI__percentile': stats.gamma(a=2, scale=10),
+    'svr__C': stats.gamma(a=2,scale=50),
+    'svr__gamma': stats.gamma(a=2,scale=1/X_MI_selected.shape[1])}
 
 param_grid_svr_lin = {
     'svr__C': stats.expon(scale=50)}
@@ -182,11 +183,11 @@ param_grid_svr_poly = {
     'svr__gamma': [2, 3, 4]}
 
 param_grid_GP = {
-    'GP__alpha': stats.expon(scale=1e-10)
+    'GP__alpha': stats.gamma(a=2,scale=1e-10)
 }
 
 
-search_svr_rbf = grid_search_output(X,y,svr_rbf_pipeline,param_grid_svr_rbf, 'SVR RBF', name_outputfile, 5 , 'r2', 10)
+search_svr_rbf = grid_search_output(X,y,svr_rbf_pipeline,param_grid_svr_rbf, 'SVR RBF', name_outputfile, 5 , 'r2', 20)
 print('SVR_RBF done')
 search_GP_rbf = grid_search_output(X,y,GP_rbf_pipeline,param_grid_GP, 'GP RBF', name_outputfile, 5 , 'r2', 10)
 print('GP_RBF done')

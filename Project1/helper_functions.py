@@ -50,7 +50,7 @@ def grid_search_output(X, y, pipeline, parameterset, title, name_outputfile, cv 
     f = open(name_outputfile, 'a')
     f.write('Gridsearch ' + title + ' ________________ \n')
     f.write("Best parameter (CV score=%0.3f):" % search.best_score_)
-    f.write(str(search.best_params_))
+    f.write(str(search.best_params_)+'\n')
     f.write('detailed cross validation results: ')
     f.write(str(search.cv_results_))
     f.write('\n')
