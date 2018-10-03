@@ -23,6 +23,7 @@ from data_setup import X,y, X_test
 from helper_classes import OutlierExtractor
 from helper_functions import cross_val_output
 import matplotlib.pyplot as plt
+import csv
 
 
 """
@@ -83,10 +84,18 @@ model = SVR()
 
 #%%
 X,X_test = preprocess(X,y,X_test,variance_threshold,percentile)
+X,y = outlier_remove(X,y,outlier_threshold)
 model.fit(X,y)
 
 #%%
 y_pred = model.predict(X_test)
+
+#%%
+with open('result.csv', mode='w') as csv_file:
+    writer = csv.writer(csv_file, delimiter=',')
+    writer.writerow(['id','y'])
+    for i in range(len(y_pred)):
+        writer.writerow([i,y_pred[i]])
 
 
 
