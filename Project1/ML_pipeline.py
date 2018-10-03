@@ -15,12 +15,12 @@ from helper_functions import cross_val_output, grid_search_output
 import matplotlib.pyplot as plt
 
 """
-This is a pipeline that can be reused for other projects. The following steps are done: 
+This is a pipeline that can be reused for other projects. The following steps are done:
 Feature selection
 Fitting ML model
 Testing ML model
 
-The feature selection should optimize the training data in 3 ways: 
+The feature selection should optimize the training data in 3 ways:
 remove irrelevant features
 remove outliers
 take perturbations into account (e.g. missing values)
@@ -195,18 +195,3 @@ search_GP_matern = grid_search_output(X,y,GP_matern_pipeline,param_grid_GP, 'GP 
 print('GP_Matern done')
 search_GP_constant = grid_search_output(X,y,GP_constant_pipeline,param_grid_GP, 'GP Constant', name_outputfile, 5 , 'r2', 10)
 print('GP_Constnant done')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
