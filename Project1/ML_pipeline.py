@@ -15,44 +15,45 @@ from helper_functions import cross_val_output, grid_search_output
 import matplotlib.pyplot as plt
 
 """
-This is a pipeline that can be reused for other projects. The following steps are done: 
+This is a pipeline that can be reused for other projects. The following steps are done:
 Feature selection
 Fitting ML model
 Testing ML model
 
-The feature selection should optimize the training data in 3 ways: 
+The feature selection should optimize the training data in 3 ways:
 remove irrelevant features
 remove outliers
 take perturbations into account (e.g. missing values)
 """
 
 # Pipeline user variables
-name_outputfile = "outputfile2"
+name_outputfile = "outputfile1"
 variance_threshold = 0
-percentile = 3  # percentile of best features to be selected in the feature selection
+percentile = 40  # percentile of best features to be selected in the feature selection
 outlier_threshold = -1.2 # threshold used to remove outliers
 plots = False
 
-def pre_processing(X,percentile, cariance_threshold):
 
-    # -------------------------- PREPROCESSING -----------------------------
-    # Imputing the missing values
-    imputer_test = SimpleImputer()
-    X_imputed = imputer_test.fit_transform(X)
-    imputer = SimpleImputer()
-    # Standardize the data (because the features are very large, not optimal for ML)
-    scaler = preprocessing.StandardScaler().fit(X_imputed)
-    X_scaled = scaler.transform(X_imputed)
-    variance_selector = VarianceThreshold(threshold=variance_threshold) # used for knowing how many features are selected
-    X_select = variance_selector.fit_transform(X_scaled)
-    X_new = SelectPercentile(mutual_info_regression, percentile).fit_transform(X_select, y)
-    return X_new
+# Create output file (delete old outputfile if it exists with the same name)
+f = open(name_outputfile, 'w+')
+f.write('========== General ==========\n')
+f.write('Number of features: ')
+f.write(str(X.shape[1]))
+f.write('\n')
+f.write('Number of training samples: ')
+f.write(str(X.shape[0]))
+f.write('\n')
+f.close()
 
-def remove_outliers(X,y,outlier_threshold):
-    outlier_extractor = OutlierExtractor(neg_conf_val=outlier_threshold)
-    X_outlier_removed,y_outlier_removed = outlier_extractor.transform(X,y)
-    return X_out_remov,
-
+# -------------------------- PREPROCESSING -----------------------------
+# Imputing the missing values
+imputer_test = SimpleImputer()
+X_imputed = imputer_test.fit_transform(X)
+imputer = SimpleImputer()
+# Standardize the data (because the features are very large, not optimal for ML)
+scaler_test = preprocessing.StandardScaler().fit(X_imputed)
+X_scaled = scaler_test.transform(X_imputed)
+scaler = preprocessing.StandardScaler() # will be used later on in the cross validation pipeline
 
 # --------------------- FEATURE SELECTION METHODS ----------------------
 # Variance Threshold
@@ -79,7 +80,7 @@ if plots:
 
 # Mutual information
 X_MI_selected = SelectPercentile(mutual_info_regression, percentile).fit_transform(X_variance_selected, y)
-MI_selector = SelectPercentile(mutual_info_regression, percentile)  # will be used later on in the cross validation pipeline
+MI_selector = SelectPercentile(mutual_info_regression)  # will be used later on in the cross validation pipeline
 
 f = open(name_outputfile, 'a')
 f.write('Mutual information ________________ \n')
@@ -169,42 +170,28 @@ cross_val_output(X,y,svr_lin_pipeline,'SVR LIN', name_outputfile,cv = 5)
 cross_val_output(X,y,svr_poly_pipeline,'SVR POLY', name_outputfile,cv = 5)
 
 # Grid search
-#param_grid_svr_rbf = {
-#    'svr__C': stats.expon(scale=50),
-#    'svr__gamma': stats.expon(scale=1/X_MI_selected.shape[1])}
-#
-#param_grid_svr_lin = {
-#    'svr__C': stats.expon(scale=50)}
-#
-#param_grid_svr_poly = {
-#    'svr__C': stats.expon(scale=50),
-#    'svr__gamma': [2, 3, 4]}
-#
-#param_grid_GP = {
-#    'GP__alpha': stats.expon(scale=1e-10)
-#}
+param_grid_svr_rbf = {
+    'MI__percentile': stats.gamma(a=2, scale=10),
+    'svr__C': stats.gamma(a=2,scale=50),
+    'svr__gamma': stats.gamma(a=2,scale=1/X_MI_selected.shape[1])}
 
-#
-#search_svr_rbf = grid_search_output(X,y,svr_rbf_pipeline,param_grid_svr_rbf, 'SVR RBF', name_outputfile, 5 , 'r2', 10)
-#print('SVR_RBF done')
-#search_GP_rbf = grid_search_output(X,y,GP_rbf_pipeline,param_grid_GP, 'GP RBF', name_outputfile, 5 , 'r2', 10)
-#print('GP_RBF done')
-#search_GP_matern = grid_search_output(X,y,GP_matern_pipeline,param_grid_GP, 'GP Matern', name_outputfile, 5 , 'r2', 10)
-#print('GP_Matern done')
-#search_GP_constant = grid_search_output(X,y,GP_constant_pipeline,param_grid_GP, 'GP Constant', name_outputfile, 5 , 'r2', 10)
-#print('GP_Constnant done')
+param_grid_svr_lin = {
+    'svr__C': stats.expon(scale=50)}
+
+param_grid_svr_poly = {
+    'svr__C': stats.expon(scale=50),
+    'svr__gamma': [2, 3, 4]}
+
+param_grid_GP = {
+    'GP__alpha': stats.gamma(a=2,scale=1e-10)
+}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+search_svr_rbf = grid_search_output(X,y,svr_rbf_pipeline,param_grid_svr_rbf, 'SVR RBF', name_outputfile, 5 , 'r2', 20)
+print('SVR_RBF done')
+search_GP_rbf = grid_search_output(X,y,GP_rbf_pipeline,param_grid_GP, 'GP RBF', name_outputfile, 5 , 'r2', 10)
+print('GP_RBF done')
+search_GP_matern = grid_search_output(X,y,GP_matern_pipeline,param_grid_GP, 'GP Matern', name_outputfile, 5 , 'r2', 10)
+print('GP_Matern done')
+search_GP_constant = grid_search_output(X,y,GP_constant_pipeline,param_grid_GP, 'GP Constant', name_outputfile, 5 , 'r2', 10)
+print('GP_Constnant done')
