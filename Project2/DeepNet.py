@@ -5,7 +5,6 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import StratifiedKFold
 from helper_functions import class2sample_weights
 import numpy as np
-import matplotlib.pyplot as plt
 
 print(tf.__version__)
 

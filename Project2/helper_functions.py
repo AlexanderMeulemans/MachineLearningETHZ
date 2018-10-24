@@ -1,15 +1,7 @@
 import numpy as np
 
 
-from sklearn.model_selection import StratifiedKFold, cross_val_score, LeaveOneOut, cross_val_predict, permutation_test_score
-from scipy import stats
-from sklearn.feature_selection import VarianceThreshold, f_regression, mutual_info_regression, SelectPercentile
-from sklearn.impute import SimpleImputer
-from sklearn import preprocessing
-from sklearn.neighbors import LocalOutlierFactor
-from sklearn.svm import SVR
-from sklearn.pipeline import Pipeline
-from sklearn.model_selection import RandomizedSearchCV
+from sklearn.model_selection import cross_val_predict
 
 from sklearn.metrics import balanced_accuracy_score
 
@@ -29,7 +21,7 @@ def clip_resultfile(y_pred):
 
 
 
-def cross_val_output(features,labels,pipeline,title,name_outputfile,cv = None, scoring = 'r2'):
+def cross_val_output(features,labels,pipeline,title,name_outputfile=None,cv = None, scoring = 'r2'):
     """
     Do a cross validation (LOOCV) on the samples and write the results to the result text file
     :param features: np.array of features of all the samples (2D array with as rows the samples and as columns the features)
@@ -43,7 +35,11 @@ def cross_val_output(features,labels,pipeline,title,name_outputfile,cv = None, s
         cv = 5
     labels_pred = cross_val_predict(pipeline, features, labels, cv=cv)
     score = balanced_accuracy_score(labels, labels_pred)
-    outputfile = open(name_outputfile,'a')
-    outputfile.write('%s _______________________________________\n' %title)
-    outputfile.write('R^2 score: %s \n' %str(score))
-    outputfile.close()
+
+    if name_outputfile:
+        outputfile = open(name_outputfile,'a')
+        outputfile.write('%s _______________________________________\n' %title)
+        outputfile.write('Balanced Accuracy Score: ' + str(score))
+        outputfile.close()
+    else:
+        print('Balanced Accuracy Score: ' + str(score))
