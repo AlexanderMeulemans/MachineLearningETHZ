@@ -56,32 +56,55 @@ f.close()
 
 # -------------------------- PREPROCESSING -----------------------------
 # Imputing the missing values
+imputer_test = SimpleImputer()
+X_imputed = imputer_test.fit_transform(X)
 imputer = SimpleImputer()
 # Standardize the data (because the features are very large, not optimal for ML)
+scaler_test = preprocessing.StandardScaler().fit(X_imputed)
+X_scaled = scaler_test.transform(X_imputed)
 scaler = preprocessing.StandardScaler() # will be used later on in the cross validation pipeline
 
 # --------------------- FEATURE SELECTION METHODS ----------------------
 # Variance Threshold
-variance_selector = VarianceThreshold(threshold=variance_threshold) # used later 
+variance_selector_test = VarianceThreshold(threshold=variance_threshold) # used for knowing how many features are selected
+variance_selector = VarianceThreshold(threshold=variance_threshold) # used later on in cross validation pipeline
+X_variance_selected = variance_selector_test.fit_transform(X_scaled)
+X_var = variance_selector_test.variances_
+
+f = open(name_outputfile, 'a')
+f.write('========== Feature selection ==========\n')
+f.write('Variance threshold ________________\n')
+f.write('number of selected features: ')
+f.write(str(X_variance_selected.shape[1]))
+f.write('\n')
+f.close()
 
 # Mutual information
+X_MI_selected = SelectPercentile(mutual_info_regression, percentile).fit_transform(X_variance_selected, y)
 MI_selector = SelectPercentile(mutual_info_regression)  # will be used later on in the cross validation pipeline
 
+f = open(name_outputfile, 'a')
+f.write('Mutual information ________________ \n')
+f.write('number of selected features: ')
+f.write(str(X_MI_selected.shape[1]))
+f.write('\n')
+f.close()
 # ---------------------- ML methods and pipelines --------------------------
-
+#%%
 # Defining models and pipelines
-SVC_rbf = SVC(kernel='rbf')
+svr_rbf = SVC(kernel='rbf',class_weight='balanced')
 
 
 
-
-
-SVM_pipeline = Pipeline([('imputer', imputer), ('standardizer', scaler),
+svr_rbf_pipeline = Pipeline([('imputer', imputer), ('standardizer', scaler),
                              ('variance', variance_selector), ('MI', MI_selector),
-                             ('svr', SVC_rbf)])
-
+                             ('svr', svr_rbf)])
 # Run models in a cross validation
-cross_val_output(X,y,svr_rbf_pipeline,'SVC RBF', name_outputfile,cv = 5)
+
+f = open(name_outputfile, 'a')
+f.write('Starting cross validation\n')
+f.close()
+cross_val_output(X,y,svr_rbf_pipeline,'SVR RBF', name_outputfile,cv = 5)
 
 #%%
 # Grid search
