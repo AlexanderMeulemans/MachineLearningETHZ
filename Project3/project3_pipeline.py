@@ -1,5 +1,5 @@
 from dataSetup import dataSetup
-from featureSelection import extractFeatures
+from featureSelection import extractFeatures, extractFeatures2
 import numpy as np
 from sklearn.feature_selection import mutual_info_regression, SelectPercentile
 from sklearn import preprocessing
@@ -10,22 +10,23 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from scipy import stats
 from sklearn.metrics import f1_score
+from sklearn.impute import SimpleImputer
 import csv
 print('------ Loading data... ------')
-X_raw,X_test_raw,Y = dataSetup()
+X_raw,Y,X_test_raw = dataSetup()
 
 print('------ Extracting features ------')
-X = extractFeatures(X_raw)
-X_test = extractFeatures(X_test_raw)
+X = extractFeatures2(X_raw)
+X_test = extractFeatures2(X_test_raw)
 
 print('------ Training classifier with CV -------')
 percentile = 100
-
+imputer = SimpleImputer()
 scaler = preprocessing.StandardScaler()
 selector = SelectPercentile(mutual_info_regression,percentile=percentile)
 svc = SVC(kernel='rbf', class_weight='balanced')
 
-pipeline = Pipeline([('standardizer', scaler),
+pipeline = Pipeline([('imputer',imputer),('standardizer', scaler),
                      ('MI', SelectPercentile(mutual_info_regression)),
                      ('svc', svc)])
 

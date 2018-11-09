@@ -14,7 +14,7 @@ def extractFeatures(X,show = False):
     # X.append(sample[1:])
     Fs = 300 #Hz
     X_all_features = np.empty((len(X),8))
-    for i in range(len(X)):
+    for i in range(0,len(X)):
         X_sample = X[i]
         X_summary = ecg.ecg(signal=X_sample,sampling_rate = Fs,show =show)
         # Start extracting features
@@ -34,5 +34,22 @@ def extractFeatures(X,show = False):
         X_all_features[i,:] = np.array(X_features)
     return X_all_features
 
+def extractFeatures2(X,show = False):
+    Fs = 300
+    X_all_features = np.empty((len(X), 362))
+    for i in range(0, len(X)):
+        X_sample = X[i]
+        X_summary = ecg.ecg(signal=X_sample, sampling_rate=Fs, show=show)
+        # Start extracting features
+        X_features = []
+        X_features.append(np.mean(X_summary['heart_rate']))
+        X_features.append(np.var(X_summary['heart_rate']))
+        X_features = np.array(X_features)
+        template_mean = np.mean(X_summary['templates'],0)
+        template_var = np.var(X_summary['templates'],0)
+        X_features = np.concatenate((X_features,template_mean,template_var))
+        X_all_features[i, :] = X_features
+
+    return X_all_features
 
 
