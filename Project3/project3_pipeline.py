@@ -27,7 +27,7 @@ selector = SelectPercentile(mutual_info_regression,percentile=percentile)
 svc = SVC(kernel='rbf', class_weight='balanced')
 
 pipeline = Pipeline([('imputer',imputer),('standardizer', scaler),
-                     ('MI', SelectPercentile(mutual_info_regression)),
+                     ('MI', selector),
                      ('svc', svc)])
 
 Y_pred = cross_val_predict(pipeline, X, Y, cv=10)
