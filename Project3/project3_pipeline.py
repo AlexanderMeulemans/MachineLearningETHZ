@@ -12,11 +12,11 @@ from scipy import stats
 from sklearn.metrics import f1_score
 import csv
 print('------ Loading data... ------')
-X,X_test,Y = dataSetup()
+X_raw,X_test_raw,Y = dataSetup()
 
 print('------ Extracting features ------')
-X = extractFeatures(X)
-X_test = extractFeatures(X_test)
+X = extractFeatures(X_raw)
+X_test = extractFeatures(X_test_raw)
 
 print('------ Training classifier with CV -------')
 percentile = 100

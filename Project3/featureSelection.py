@@ -5,7 +5,7 @@ sys.path.append(r"C:\Users\Alexander\Anaconda3\pkgs\pywavelets-1.0.1-py36h8c2d36
 import numpy as np
 from biosppy.signals import ecg
 from pywt import wavedec
-def extractFeatures(X):
+def extractFeatures(X,show = False):
     # X_len = 5118
     # X_test_len = 3412
 
@@ -16,7 +16,8 @@ def extractFeatures(X):
     X_all_features = np.empty((len(X),8))
     for i in range(len(X)):
         X_sample = X[i]
-        X_summary = ecg.ecg(signal=X_sample,sampling_rate = Fs,show =False)
+        X_summary = ecg.ecg(signal=X_sample,sampling_rate = Fs,show =show)
+        # Start extracting features
         X_features = []
         X_features.append(np.mean(X_summary['heart_rate']))
         X_features.append(np.var(X_summary['heart_rate']))
@@ -24,12 +25,12 @@ def extractFeatures(X):
         # Wavelet transform
         coeff = wavedec(X_sample,'db4',level=5)
         cA5,cD5, cD4, cD3, cD2, cD1 = coeff
-        X_features.append(np.sum(np.power(cA5,2)))
-        X_features.append(np.sum(np.power(cD5,2)))
-        X_features.append(np.sum(np.power(cD4,2)))
-        X_features.append(np.sum(np.power(cD3,2)))
-        X_features.append(np.sum(np.power(cD2,2)))
-        X_features.append(np.sum(np.power(cD1,2)))
+        X_features.append(np.mean(np.power(cA5,2)))
+        X_features.append(np.mean(np.power(cD5,2)))
+        X_features.append(np.mean(np.power(cD4,2)))
+        X_features.append(np.mean(np.power(cD3,2)))
+        X_features.append(np.mean(np.power(cD2,2)))
+        X_features.append(np.mean(np.power(cD1,2)))
         X_all_features[i,:] = np.array(X_features)
     return X_all_features
 
