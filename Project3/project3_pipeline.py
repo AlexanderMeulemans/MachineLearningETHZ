@@ -1,23 +1,20 @@
 from dataSetup import dataSetup
 from featureSelection import extractFeatures, extractFeatures2
-import numpy as np
 from sklearn.feature_selection import mutual_info_regression, SelectPercentile
 from sklearn import preprocessing
-from sklearn.metrics import balanced_accuracy_score, make_scorer
 from sklearn.model_selection import cross_val_predict
 from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
-from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
-from scipy import stats
 from sklearn.metrics import f1_score
 from sklearn.impute import SimpleImputer
-import csv
-print('------ Loading data... ------')
-X_raw,Y,X_test_raw = dataSetup()
 
-print('------ Extracting features ------')
-X = extractFeatures2(X_raw)
-X_test = extractFeatures2(X_test_raw)
+import csv
+import numpy as np
+
+print('------ opening files -------')
+X = np.loadtxt("X.txt", delimiter=",", dtype="float64")
+X_test = np.loadtxt("X_test.txt", delimiter=",", dtype="float64")
+Y = np.loadtxt("Y.txt", delimiter=",", dtype="float64")
 
 print('------ Training classifier with CV -------')
 percentile = 100
@@ -44,4 +41,4 @@ with open('result.csv', mode='w') as csv_file:
     writer = csv.writer(csv_file, delimiter=',')
     writer.writerow(['id','y'])
     for i in range(len(Y_test_pred)):
-        writer.writerow([i,Y_test_pred[i]])
+        writer.writerow([i, Y_test_pred[i]])
