@@ -9,9 +9,9 @@ print('------ Extracting features ------')
 X = extractFeatures2(X_raw)
 X_test = extractFeatures2(X_test_raw)
 
-np.savetxt("X.txt", X, delimiter=",")
-np.savetxt("X_test.txt", X_test, delimiter=",")
-np.savetxt("Y.txt", Y, delimiter=",")
+np.savetxt("X3.txt", X, delimiter=",")
+np.savetxt("X_test3.txt", X_test, delimiter=",")
+np.savetxt("Y3.txt", Y, delimiter=",")
 
 print("X dtype: " + str(X.dtype))
 print("X_test dtype: " + str(X_test.dtype))
