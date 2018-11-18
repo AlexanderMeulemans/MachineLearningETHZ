@@ -24,13 +24,15 @@ X_test = np.loadtxt("X_test.txt", delimiter=",", dtype="float64")
 Y = np.loadtxt("Y.txt", delimiter=",", dtype="float64")
 
 print('------ Training classifier with CV -------')
-percentile = 100
+percentile = 60
 imputer = SimpleImputer()
 scaler = preprocessing.StandardScaler()
 selector = SelectPercentile(mutual_info_regression, percentile=percentile)
 
 #model = RandomForestClassifier(n_estimators = 1000,class_weight='balanced',min_samples_split=5,min_samples_leaf=2,max_features='sqrt',max_depth=20,bootstrap='False')
-model = RandomForestClassifier(n_estimators = 200,class_weight='balanced',min_samples_split=2,min_samples_leaf=2,max_features='auto',max_depth=50,bootstrap='False')
+model = RandomForestClassifier(n_estimators = 1800,class_weight='balanced',
+                               min_samples_split=10,min_samples_leaf=2,
+                               max_features='auto',max_depth=50,bootstrap='False')
 
 #model = SVC(class_weight='balanced')
 model = Pipeline([
