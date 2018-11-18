@@ -15,6 +15,7 @@ print('------ opening files -------')
 X = np.loadtxt("X3.txt", delimiter=",", dtype="float64")
 X_test = np.loadtxt("X_test3.txt", delimiter=",", dtype="float64")
 Y = np.loadtxt("Y3.txt", delimiter=",", dtype="float64")
+print(X.shape)
 
 print('------ Training classifier with CV -------')
 percentile = 100

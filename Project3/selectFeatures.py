@@ -1,17 +1,17 @@
 from dataSetup import dataSetup
-from featureSelection import extractFeatures2
+from featureSelection import extractFeatures4
 import numpy as np
 
 print('------ Loading data ------')
 X_raw, Y, X_test_raw = dataSetup()
 
 print('------ Extracting features ------')
-X = extractFeatures2(X_raw)
-X_test = extractFeatures2(X_test_raw)
+X = extractFeatures4(X_raw)
+X_test = extractFeatures4(X_test_raw)
 
-np.savetxt("X3.txt", X, delimiter=",")
-np.savetxt("X_test3.txt", X_test, delimiter=",")
-np.savetxt("Y3.txt", Y, delimiter=",")
+np.savetxt("X4.txt", X, delimiter=",")
+np.savetxt("X_test4.txt", X_test, delimiter=",")
+np.savetxt("Y4.txt", Y, delimiter=",")
 
 print("X dtype: " + str(X.dtype))
 print("X_test dtype: " + str(X_test.dtype))
