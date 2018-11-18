@@ -12,16 +12,24 @@ import numpy as np
 from sklearn.preprocessing import LabelEncoder
 
 print('------ opening files -------')
-X = np.loadtxt("X3.txt", delimiter=",", dtype="float64")
-X_test = np.loadtxt("X_test3.txt", delimiter=",", dtype="float64")
-Y = np.loadtxt("Y3.txt", delimiter=",", dtype="float64")
+X = np.loadtxt("X4.txt", delimiter=",", dtype="float64")
+X_test = np.loadtxt("X_test4.txt", delimiter=",", dtype="float64")
+Y = np.loadtxt("Y4.txt", delimiter=",", dtype="float64")
 print(X.shape)
 
 print('------ Training classifier with CV -------')
-percentile = 100
+percentile = 80
 imputer = SimpleImputer()
 scaler = preprocessing.StandardScaler()
 selector = SelectPercentile(mutual_info_regression, percentile=percentile)
+
+X = imputer.fit_transform(X)
+X = scaler.fit_transform(X)
+X = selector.fit_transform(X,Y)
+
+X_test = imputer.transform(X_test)
+X_test = scaler.transform(X_test)
+X_test = selector.transform(X_test)
 
 #
 #model = SVC(class_weight='balanced')
@@ -55,23 +63,33 @@ bootstrap = [False]
 percentile = [x for x in np.linspace(50, 100, num = 22)]
 # Create the random grid
 print('running rnadom grid search')
-random_grid =  {'MI__percentile': percentile,
-               'model__n_estimators': n_estimators,
-               'model__max_features': max_features,
-               'model__max_depth': max_depth,
-               'model__min_samples_split': min_samples_split,
-               'model__min_samples_leaf': min_samples_leaf,
-               'model__bootstrap': bootstrap}
+random_grid = {'n_estimators': n_estimators,
+               'max_features': max_features,
+               'max_depth': max_depth,
+               'min_samples_split': min_samples_split,
+               'min_samples_leaf': min_samples_leaf,
+               'bootstrap': bootstrap}
 
-grid_search_rand = RandomizedSearchCV(pipeline, random_grid,
+
+grid_search_rand = RandomizedSearchCV(model, random_grid,
                                       scoring=make_scorer(f1_score,
                                                           average='micro'),
-                                      cv=8, n_iter = 30,verbose=2)
+                                      cv=3, n_iter = 8,verbose=2)
 grid_search_rand.fit(X,Y)
 print('best params')
 print(grid_search_rand.best_params_)
 print("CV results:")
 print(grid_search_rand.cv_results_)
+
+
+# random_grid =  {'MI__percentile': percentile,
+#                'model__n_estimators': n_estimators,
+#                'model__max_features': max_features,
+#                'model__max_depth': max_depth,
+#                'model__min_samples_split': min_samples_split,
+#                'model__min_samples_leaf': min_samples_leaf,
+#                'model__bootstrap': bootstrap}
+
 
 
 #print("---- predicting ----")

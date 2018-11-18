@@ -1,6 +1,6 @@
-import sys
-sys.path.append(r"c:\users\alexander\appdata\local\programs\python\python36\lib\site-packages")
-sys.path.append(r"C:\Users\Alexander\Anaconda3\pkgs\pywavelets-1.0.1-py36h8c2d366_0\Lib\site-packages")
+# import sys
+# sys.path.append(r"c:\users\alexander\appdata\local\programs\python\python36\lib\site-packages")
+# sys.path.append(r"C:\Users\Alexander\Anaconda3\pkgs\pywavelets-1.0.1-py36h8c2d366_0\Lib\site-packages")
 import numpy as np
 from biosppy.signals import ecg
 import pywt

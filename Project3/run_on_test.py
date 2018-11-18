@@ -21,16 +21,16 @@ from imblearn.over_sampling import SMOTE
 
 
 print('------ opening files -------')
-X = np.loadtxt("X.txt", delimiter=",", dtype="float64")
-X_test = np.loadtxt("X_test.txt", delimiter=",", dtype="float64")
-Y = np.loadtxt("Y.txt", delimiter=",", dtype="float64")
+X = np.loadtxt("X4.txt", delimiter=",", dtype="float64")
+X_test = np.loadtxt("X_test4.txt", delimiter=",", dtype="float64")
+Y = np.loadtxt("Y4.txt", delimiter=",", dtype="float64")
 
 
 print('------ Training classifier with CV -------')
 percentile = 60
 
 print('------ Training classifier -------')
-percentile = 100
+percentile = 70
 imputer = SimpleImputer()
 scaler = preprocessing.StandardScaler()
 selector = SelectPercentile(mutual_info_regression, percentile=percentile)
