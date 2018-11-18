@@ -2,14 +2,15 @@
 from sklearn.feature_selection import mutual_info_regression, SelectPercentile
 from sklearn import preprocessing
 from sklearn.model_selection import cross_val_predict
-from sklearn.pipeline import Pipeline
 from sklearn.metrics import f1_score, make_scorer
 from sklearn.impute import SimpleImputer
-from sklearn.ensemble import RandomForestClassifier
+import sklearn.ensemble as skl
 from sklearn.model_selection import RandomizedSearchCV
-
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
+import imblearn.ensemble as imb
+from imblearn.over_sampling import SMOTE, ADASYN
+from imblearn.pipeline import Pipeline
 
 print('------ opening files -------')
 X = np.loadtxt("X.txt", delimiter=",", dtype="float64")
@@ -21,55 +22,57 @@ percentile = 100
 imputer = SimpleImputer()
 scaler = preprocessing.StandardScaler()
 selector = SelectPercentile(mutual_info_regression, percentile=percentile)
-
+over_sample = SMOTE()
 # 
 #model = SVC(class_weight='balanced')
 #%%
 #0.668 without any parameters, with 100 estimators 0.709
-model = RandomForestClassifier(n_estimators = 100,class_weight='balanced')
+
+model = skl.GradientBoostingClassifier()
 
 pipeline = Pipeline([
                     ('imputer',imputer),
                     ('standardizer', scaler),
+                    ('over_sampler',over_sample),
                     ('MI', selector),
                     ('model',model)
                     ])
 
-
-
-# Number of trees in random forest
-n_estimators = [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)]
-# Number of features to consider at every split
-max_features = ['auto', 'sqrt']
-# Maximum number of levels in tree
-max_depth = [int(x) for x in np.linspace(10, 110, num = 11)]
-max_depth.append(None)
-# Minimum number of samples required to split a node
-min_samples_split = [2, 5, 10]
-# Minimum number of samples required at each leaf node
-min_samples_leaf = [1, 2, 4]
-# Method of selecting samples for training each tree
-bootstrap = [True, False]
-# Create the random grid
-print('running rnadom grid search')
-random_grid =  {'MI__percentile': [40, 60, 100],
-               'model__n_estimators': n_estimators,
-               'model__max_features': max_features,
-               'model__max_depth': max_depth,
-               'model__min_samples_split': min_samples_split,
-               'model__min_samples_leaf': min_samples_leaf,
-               'model__bootstrap': bootstrap}
-
-grid_search_rand = RandomizedSearchCV(pipeline, random_grid, scoring=make_scorer(f1_score,average='micro'), cv=3, n_iter = 10,verbose=2)
-grid_search_rand.fit(X,Y)
-print('best params')
-print(grid_search_rand.best_params_)
-
-
-#print("---- predicting ----")
-#Y_pred = cross_val_predict(pipeline, X,Y, cv=5)
 #
-#print("---- scoring ----")
-#score = f1_score(Y, Y_pred, average='micro')
 #
-#print('average CV F1 score: ' + str(score))
+## Number of trees in random forest
+#n_estimators = [int(x) for x in np.linspace(start = 10, stop = 1000, num = 10)]
+## Number of features to consider at every split
+#max_features = ['auto', 'sqrt']
+## Maximum number of levels in tree
+#max_depth = [int(x) for x in np.linspace(10, 110, num = 11)]
+#max_depth.append(None)
+## Minimum number of samples required to split a node
+#min_samples_split = [2, 5, 10]
+## Minimum number of samples required at each leaf node
+#min_samples_leaf = [1, 2, 4]
+## Method of selecting samples for training each tree
+#bootstrap = [True, False]
+## Create the random grid
+#print('running rnadom grid search')
+#random_grid =  {'MI__percentile': [40, 60, 100],
+#               'model__n_estimators': n_estimators,
+#               'model__max_features': max_features,
+#               'model__max_depth': max_depth,
+#               'model__min_samples_split': min_samples_split,
+#               'model__min_samples_leaf': min_samples_leaf,
+#               'model__bootstrap': bootstrap}
+#
+#grid_search_rand = RandomizedSearchCV(pipeline, random_grid, scoring=make_scorer(f1_score,average='micro'), cv=3, n_iter = 20,verbose=2)
+#grid_search_rand.fit(X,Y)
+#print('best params')
+#print(grid_search_rand.best_params_)
+
+
+print("---- predicting ----")
+Y_pred = cross_val_predict(pipeline, X,Y, cv=5)
+
+print("---- scoring ----")
+score = f1_score(Y, Y_pred, average='micro')
+
+print('average CV F1 score: ' + str(score))
