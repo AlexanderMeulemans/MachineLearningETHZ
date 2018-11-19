@@ -71,6 +71,8 @@ random_grid = {'n_estimators': n_estimators,
                'bootstrap': bootstrap}
 
 
+
+
 grid_search_rand = RandomizedSearchCV(model, random_grid,
                                       scoring=make_scorer(f1_score,
                                                           average='micro'),

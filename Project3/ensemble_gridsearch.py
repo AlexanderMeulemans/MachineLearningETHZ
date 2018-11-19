@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Nov 14 16:25:52 2018
-
-@author: martin
-"""
 from sklearn.feature_selection import mutual_info_regression, SelectPercentile
 from sklearn import preprocessing
 from sklearn.model_selection import cross_val_predict
@@ -15,7 +8,9 @@ from sklearn.ensemble import RandomForestClassifier, BaggingClassifier, Gradient
 from sklearn.svm import SVC
 from sklearn.gaussian_process import GaussianProcessClassifier
 import numpy as np
+from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import f1_score, make_scorer
 import csv
 from imblearn.over_sampling import SMOTE
 
@@ -26,47 +21,44 @@ X_test = np.loadtxt("X_test4.txt", delimiter=",", dtype="float64")
 Y = np.loadtxt("Y4.txt", delimiter=",", dtype="float64")
 
 
-print('------ Training classifier with CV -------')
-percentile = 60
-
-print('------ Training classifier -------')
-percentile = 67
+print('------ Preprocess data --------')
 imputer = SimpleImputer()
 scaler = preprocessing.StandardScaler()
-selector = SelectPercentile(mutual_info_regression, percentile=percentile)
-over_sample = SMOTE()
-{'model__n_estimators': 780, 'model__min_samples_split': 2, 'model__min_samples_leaf': 4, 'model__max_features': 'sqrt', 'model__max_depth': None, 'model__bootstrap': False, 'MI__percentile': 100}
-#model = RandomForestClassifier(n_estimators = 1000,class_weight='balanced',min_samples_split=5,min_samples_leaf=2,max_features='sqrt',max_depth=20,bootstrap='False')
+
+X = imputer.fit_transform(X)
+X = scaler.fit_transform(X)
+
+
+X_test = imputer.transform(X_test)
+X_test = scaler.transform(X_test)
+
+
+print('------ Training classifier with CV -------')
+
+selector = SelectPercentile(mutual_info_regression)
 
 model = RandomForestClassifier(n_estimators = 1800,class_weight='balanced',
                                min_samples_split=10,min_samples_leaf=2,
                                max_features='auto',max_depth=50,bootstrap='False')
 
-#model = RandomForestClassifier(n_estimators = 200,class_weight='balanced',min_samples_split=2,min_samples_leaf=2,max_features='auto',max_depth=50,bootstrap='False')
 model1 = RandomForestClassifier(n_estimators = 780,class_weight='balanced',min_samples_split=2,min_samples_leaf=4,max_features='sqrt',max_depth=None,bootstrap='False')
 model2 = GradientBoostingClassifier()
 model3 = GaussianProcessClassifier()
 model4 = SVC()
-model = VotingClassifier(estimators=[('rfc',model1),('gb',model2),('gpc',model3)])
+model = VotingClassifier(estimators=[('rfc', model1), ('gb', model2), ('gpc', model3)])
 #model = AdaBoostClassifier()
 
 #model = SVC(class_weight='balanced')
-model = Pipeline([
-                ('imputer',imputer),
-                ('standardizer', scaler),
-                # ('over_sample',over_sample),
-                ('MI', selector),
+pipeline = Pipeline([('MI', selector),
                 ('model', model)
                 ])
-# Fit the model
-model.fit(X, Y)
-# predict the testdata
-print('predicting')
-y_pred = model.predict(X_test)
 
-print('writing to file')
-with open('result.csv', mode='w') as csv_file:
-    writer = csv.writer(csv_file, delimiter=',')
-    writer.writerow(['id', 'y'])
-    for i in range(len(y_pred)):
-        writer.writerow([i, y_pred[i]])
+deterministic_grid = {'MI__percentile': [60, 67, 70, 75, 80, 90 ]}
+grid_search_rand = GridSearchCV(pipeline, deterministic_grid, scoring=make_scorer(f1_score, average='micro'), cv=6,
+                                verbose=2)
+# Fit the model
+grid_search_rand.fit(X,Y)
+print('best params')
+print(grid_search_rand.best_params_)
+print("CV results:")
+print(grid_search_rand.cv_results_)

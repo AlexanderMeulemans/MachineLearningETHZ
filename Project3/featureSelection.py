@@ -13,15 +13,18 @@ def extractFeatures(X,show = False):
     # sample = np.genfromtxt("X_train.csv", delimiter=",", skip_header=1,skip_footer=X_len-2)
     # X.append(sample[1:])
     Fs = 300 #Hz
-    X_all_features = np.empty((len(X), 8))
+    X_all_features = np.empty((len(X), 13))
     for i in range(0, len(X)):
         X_sample = X[i]
         X_summary = ecg.ecg(signal=X_sample, sampling_rate=Fs, show=show)
         # Start extracting features
         X_features = [np.mean(X_summary['heart_rate']), np.var(X_summary['heart_rate'])]
-
+        rpeaks_indices = X_summary['rpeaks']
+        rpeaks = X_sample[rpeaks_indices]
+        X_features.append(np.mean(rpeaks))
+        X_features.append(np.var(rpeaks))
         # Wavelet transform
-        coefficients = pywt.wavedec(X_sample,'db4',level=5)
+        coefficients = pywt.wavedec(X_sample,'db4',level=9)
         for coeff in coefficients:
             X_features += [np.mean(np.power(coeff, 2))]
 
