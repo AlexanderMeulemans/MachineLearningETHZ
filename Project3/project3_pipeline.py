@@ -2,7 +2,7 @@ from dataSetup import dataSetup
 from featureSelection import extractFeatures, extractFeatures2
 from sklearn.feature_selection import mutual_info_regression, SelectPercentile
 from sklearn import preprocessing
-from sklearn.model_selection import cross_val_predict
+from sklearn.model_selection import cross_val_predict, StratifiedKFold
 from sklearn.cluster import KMeans
 from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
@@ -12,11 +12,13 @@ from sklearn.impute import SimpleImputer
 import csv
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
+from sklearn.utils import class_weight
 
 from tensorflow.python.keras import Sequential
+from tensorflow.python.keras.callbacks import EarlyStopping
 from tensorflow.python.keras.layers import Dropout, Dense
 from tensorflow.python.keras.utils import np_utils
-from tensorflow.python.keras.wrappers.scikit_learn import KerasRegressor, KerasClassifier
+from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
 
 print('------ opening files -------')
 X = np.loadtxt("X.txt", delimiter=",", dtype="float64")
@@ -33,6 +35,7 @@ percentile = 100
 imputer = SimpleImputer()
 scaler = preprocessing.StandardScaler()
 selector = SelectPercentile(mutual_info_regression, percentile=percentile)
+X = scaler.fit_transform(imputer.fit_transform(X))
 
 
 def create_model(optimizer='adagrad',
@@ -41,34 +44,24 @@ def create_model(optimizer='adagrad',
     model = Sequential()
     model.add(Dense(1024, activation='relu',kernel_initializer=kernel_initializer))
     model.add(Dropout(dropout))
-    model.add(Dense(64, activation='relu',kernel_initializer=kernel_initializer))
+    model.add(Dense(512, activation='relu',kernel_initializer=kernel_initializer))
     model.add(Dropout(dropout))
     model.add(Dense(4, activation='softmax', kernel_initializer=kernel_initializer))
     model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['accuracy'])
     return model
 
-pipeline = Pipeline([
-                    ('imputer',imputer),
-                    ('standardizer', scaler),
-                    ('MI', selector),
-                    ('keras', KerasClassifier(build_fn=create_model,epochs=30, batch_size=15,verbose=1))
-                     ])
+earlyStopping = EarlyStopping(monitor='val_loss', patience=0, verbose=0, mode='auto')
+class_weights = class_weight.compute_class_weight('balanced', np.unique(Y), Y)
 
-print("---- predicting ----")
-Y_pred = cross_val_predict(pipeline, X, dummy_y, cv=2)
+kfold = StratifiedKFold(n_splits=3, shuffle=True, random_state=np.random.seed(7))
+Y_pred = np.zeros(len(Y))
+for train, test in kfold.split(X, Y):
+    model = create_model()
+    model.fit(X[train], dummy_y[train], epochs=30, batch_size=15, verbose=1,
+              class_weight=class_weights, callbacks=[earlyStopping])
+    Y_pred[test] = np.argmax(model.predict(X[test]), axis=1)
 
 print("---- scoring ----")
 score = f1_score(Y, Y_pred, average='micro')
-
 print('average CV F1 score: ' + str(score))
 
-# print('------ Training classifier on total data -------')
-# pipeline.fit(X,Y)s
-
-# print('------ Predicting test data -------')
-# Y_test_pred = pipeline.predict(X_test)
-# with open('result.csv', mode='w') as csv_file:
-#     writer = csv.writer(csv_file, delimiter=',')
-#     writer.writerow(['id','y'])
-#     for i in range(len(Y_test_pred)):
-#         writer.writerow([i, Y_test_pred[i]])

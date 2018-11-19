@@ -13,7 +13,6 @@ from imblearn.over_sampling import SMOTE, ADASYN, BorderlineSMOTE
 from imblearn.pipeline import Pipeline
 import xgboost.sklearn as xg
 from sklearn.svm import SVC
-
 print('------ opening files -------')
 X = np.loadtxt("X5.txt", delimiter=",", dtype="float64")
 X_test = np.loadtxt("X_test5.txt", delimiter=",", dtype="float64")
@@ -24,10 +23,13 @@ percentile = 100
 imputer = SimpleImputer()
 scaler = preprocessing.StandardScaler()
 selector = SelectPercentile(mutual_info_regression, percentile=percentile)
+<<<<<<< HEAD
 over_sample = BorderlineSMOTE()
 # 
 #model = SVC(class_weight='balanced',gamma = 'scale')
-#%%
+over_sample = SMOTE()
+#
+#model = SVC(class_weight='balan
 #0.668 without any parameters, with 100 estimators 0.709
 
 #model = skl.GradientBoostingClassifier()
@@ -66,6 +68,7 @@ random_grid =  {'MI__percentile': [40, 60, 100],
                'model__min_samples_leaf': min_samples_leaf,
                'model__bootstrap': bootstrap}
 
+<<<<<<< HEAD
 grid_search_rand = RandomizedSearchCV(pipeline, random_grid, scoring=make_scorer(f1_score,average='micro'), cv=3, n_iter = 14,verbose=1,n_jobs=3)
 grid_search_rand.fit(X,Y)
 print('best params')
@@ -79,3 +82,6 @@ print(grid_search_rand.best_params_)
 #score = f1_score(Y, Y_pred, average='micro')
 #
 #print('average CV F1 score: ' + str(score))
+=======
+print('average CV F1 score: ' + str(score))
+>>>>>>> df5a3dcd6fc57d09f5a7e504e658567316a9747a
