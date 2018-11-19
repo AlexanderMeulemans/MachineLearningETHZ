@@ -21,13 +21,12 @@ from imblearn.over_sampling import SMOTE
 
 
 print('------ opening files -------')
-X = np.loadtxt("X4.txt", delimiter=",", dtype="float64")
-X_test = np.loadtxt("X_test4.txt", delimiter=",", dtype="float64")
-Y = np.loadtxt("Y4.txt", delimiter=",", dtype="float64")
+X = np.loadtxt("X6.txt", delimiter=",", dtype="float64")
+X_test = np.loadtxt("X_test6.txt", delimiter=",", dtype="float64")
+Y = np.loadtxt("Y6.txt", delimiter=",", dtype="float64")
 
 
 print('------ Training classifier with CV -------')
-percentile = 60
 
 print('------ Training classifier -------')
 percentile = 67
@@ -38,9 +37,9 @@ over_sample = SMOTE()
 {'model__n_estimators': 780, 'model__min_samples_split': 2, 'model__min_samples_leaf': 4, 'model__max_features': 'sqrt', 'model__max_depth': None, 'model__bootstrap': False, 'MI__percentile': 100}
 #model = RandomForestClassifier(n_estimators = 1000,class_weight='balanced',min_samples_split=5,min_samples_leaf=2,max_features='sqrt',max_depth=20,bootstrap='False')
 
-model = RandomForestClassifier(n_estimators = 1800,class_weight='balanced',
-                               min_samples_split=10,min_samples_leaf=2,
-                               max_features='auto',max_depth=50,bootstrap='False')
+# model = RandomForestClassifier(n_estimators = 1800,class_weight='balanced',
+#                                min_samples_split=10,min_samples_leaf=2,
+#                                max_features='auto',max_depth=50,bootstrap='False')
 
 #model = RandomForestClassifier(n_estimators = 200,class_weight='balanced',min_samples_split=2,min_samples_leaf=2,max_features='auto',max_depth=50,bootstrap='False')
 model1 = RandomForestClassifier(n_estimators = 780,class_weight='balanced',min_samples_split=2,min_samples_leaf=4,max_features='sqrt',max_depth=None,bootstrap='False')

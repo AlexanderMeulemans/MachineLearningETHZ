@@ -16,9 +16,9 @@ from imblearn.over_sampling import SMOTE
 
 
 print('------ opening files -------')
-X = np.loadtxt("X4.txt", delimiter=",", dtype="float64")
-X_test = np.loadtxt("X_test4.txt", delimiter=",", dtype="float64")
-Y = np.loadtxt("Y4.txt", delimiter=",", dtype="float64")
+X = np.loadtxt("X5.txt", delimiter=",", dtype="float64")
+X_test = np.loadtxt("X_test5.txt", delimiter=",", dtype="float64")
+Y = np.loadtxt("Y5.txt", delimiter=",", dtype="float64")
 
 
 print('------ Preprocess data --------')
@@ -37,10 +37,6 @@ print('------ Training classifier with CV -------')
 
 selector = SelectPercentile(mutual_info_regression)
 
-model = RandomForestClassifier(n_estimators = 1800,class_weight='balanced',
-                               min_samples_split=10,min_samples_leaf=2,
-                               max_features='auto',max_depth=50,bootstrap='False')
-
 model1 = RandomForestClassifier(n_estimators = 780,class_weight='balanced',min_samples_split=2,min_samples_leaf=4,max_features='sqrt',max_depth=None,bootstrap='False')
 model2 = GradientBoostingClassifier()
 model3 = GaussianProcessClassifier()
@@ -53,8 +49,8 @@ pipeline = Pipeline([('MI', selector),
                 ('model', model)
                 ])
 
-deterministic_grid = {'MI__percentile': [60, 67, 70, 75, 80, 90 ]}
-grid_search_rand = GridSearchCV(pipeline, deterministic_grid, scoring=make_scorer(f1_score, average='micro'), cv=6,
+deterministic_grid = {'MI__percentile': [67, 77, 90, 100]}
+grid_search_rand = GridSearchCV(pipeline, deterministic_grid, scoring=make_scorer(f1_score, average='micro'), cv=4,
                                 verbose=2)
 # Fit the model
 grid_search_rand.fit(X,Y)
