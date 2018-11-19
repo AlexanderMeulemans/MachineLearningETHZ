@@ -13,7 +13,7 @@ def extractFeatures(X,show = False):
     # sample = np.genfromtxt("X_train.csv", delimiter=",", skip_header=1,skip_footer=X_len-2)
     # X.append(sample[1:])
     Fs = 300 #Hz
-    X_all_features = np.empty((len(X), 13))
+    X_all_features = np.empty((len(X), 14))
     for i in range(0, len(X)):
         X_sample = X[i]
         X_summary = ecg.ecg(signal=X_sample, sampling_rate=Fs, show=show)
