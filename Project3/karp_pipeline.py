@@ -10,7 +10,7 @@ import numpy as np
 from sklearn.preprocessing import LabelEncoder
 import imblearn.ensemble as imb
 from imblearn.over_sampling import SMOTE, ADASYN
-from imblearn.pipeline import Pipeline
+from imblearn.pipeline imporPipeline
 
 print('------ opening files -------')
 X = np.loadtxt("X.txt", delimiter=",", dtype="float64")
@@ -23,7 +23,7 @@ imputer = SimpleImputer()
 scaler = preprocessing.StandardScaler()
 selector = SelectPercentile(mutual_info_regression, percentile=percentile)
 over_sample = SMOTE()
-# 
+#
 #model = SVC(class_weight='balanced')
 #%%
 #0.668 without any parameters, with 100 estimators 0.709
