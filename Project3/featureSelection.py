@@ -75,18 +75,22 @@ def extractFeatures3(X, show = False):
 
 def extractFeatures4(X, show = False):
     Fs = 300
-    X_all_features = np.empty((len(X), 372))
+    X_all_features = np.empty((len(X), 371))
     for i in range(0, len(X)):
         X_sample = X[i]
         X_summary = ecg.ecg(signal=X_sample, sampling_rate=Fs, show=show)
         # Start extracting features
         X_features = [np.mean(X_summary['heart_rate']),
                       np.var(X_summary['heart_rate'])]
+        rpeaks_indices = X_summary['rpeaks']
+        rpeaks = X_sample[rpeaks_indices]
+        X_features.append(np.mean(rpeaks))
+        X_features.append(np.var(rpeaks))
         X_features = np.array(X_features)
         template_mean = np.mean(X_summary['templates'], 0)
         template_var = np.var(X_summary['templates'], 0)
         # Wavelet transform
-        coefficients = pywt.wavedec(X_sample, 'db4', level=9)
+        coefficients = pywt.wavedec(X_sample, 'db4', level=6)
         X_wavelets = []
         for coeff in coefficients:
             X_wavelets += [np.mean(np.power(coeff, 2))]
