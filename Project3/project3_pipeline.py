@@ -53,15 +53,27 @@ def create_model(optimizer='adagrad',
 earlyStopping = EarlyStopping(monitor='val_loss', patience=0, verbose=0, mode='auto')
 class_weights = class_weight.compute_class_weight('balanced', np.unique(Y), Y)
 
-kfold = StratifiedKFold(n_splits=3, shuffle=True, random_state=np.random.seed(7))
-Y_pred = np.zeros(len(Y))
-for train, test in kfold.split(X, Y):
-    model = create_model()
-    model.fit(X[train], dummy_y[train], epochs=30, batch_size=15, verbose=1,
-              class_weight=class_weights, callbacks=[earlyStopping])
-    Y_pred[test] = np.argmax(model.predict(X[test]), axis=1)
+# kfold = StratifiedKFold(n_splits=3, shuffle=True, random_state=np.random.seed(7))
+# Y_pred = np.zeros(len(Y))
+# for train, test in kfold.split(X, Y):
+#     model = create_model()
 
-print("---- scoring ----")
-score = f1_score(Y, Y_pred, average='micro')
-print('average CV F1 score: ' + str(score))
+
+model = create_model()
+model.fit(X, dummy_y, epochs=30, batch_size=15, verbose=1,
+          class_weight=class_weights, callbacks=[earlyStopping])
+# Y_pred[test] = np.argmax(model.predict(X[test]), axis=1)
+
+
+y_pred = model.predict(X_test)
+# print("---- scoring ----")
+# score = f1_score(Y, Y_pred, average='micro')
+# print('average CV F1 score: ' + str(score))
+
+print('writing to file')
+with open('result.csv', mode='w') as csv_file:
+    writer = csv.writer(csv_file, delimiter=',')
+    writer.writerow(['id', 'y'])
+    for i in range(len(y_pred)):
+        writer.writerow([i, np.argmax(y_pred[i])])
 
