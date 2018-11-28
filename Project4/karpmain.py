@@ -4,7 +4,7 @@ import numpy as np
 from utils import save_solution
 import cv2 as cv
 import matplotlib.pyplot as plt
-
+import math as math
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 train_folder = os.path.join(dir_path,"train")
@@ -39,6 +39,22 @@ for j, vid in enumerate(x_test):
         mask = bgf.apply(frame)
         filtervid[i,:,:]=mask
     x_test[j]=filtervid
+#%% 
+heartbeats=np.zeros(len(x_train))
+for k, vid in enumerate(x_train):
+    x = np.zeros(len(np.fft.rfft(vid[:,1,1])))
+    for i in range(len(vid[1,:,1])):
+        for j in range(len(vid[1,1,:])):
+            xp = np.fft.rfft(vid[:,i,j])
+            x = x + xp
+    x = x / np.sum(x)
+    xf = np.fft.rfftfreq(len(vid[:,1,1]),1/25)
+    plot(xf,x)
+    heartbeats[k] = xf[np.argmax(x))]
+#%%
+plt.plot(heartbeats)
+plt.show()
+    
 
 #last step
 #save_solution(my_solution_file,solution)
