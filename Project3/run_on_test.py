@@ -25,6 +25,12 @@ X = np.loadtxt("X6.txt", delimiter=",", dtype="float64")
 X_test = np.loadtxt("X_test6.txt", delimiter=",", dtype="float64")
 Y = np.loadtxt("Y6.txt", delimiter=",", dtype="float64")
 
+Xq = np.loadtxt("X6.txt", delimiter=",", dtype="float64")
+Xq_test = np.loadtxt("X_test6.txt", delimiter=",", dtype="float64")
+
+X = np.concatenate((X,Xq[:,-4:]),1)
+X_test = np.concatenate((X_test, Xq_test[:,-4:]),1)
+
 
 print('------ Training classifier with CV -------')
 

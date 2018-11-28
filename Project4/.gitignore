@@ -1,0 +1,7 @@
+*.csv
+
+*.iml
+*.xml
+*.avi
+**/test
+**/train
