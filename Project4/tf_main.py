@@ -6,11 +6,11 @@ from get_data import get_videos_from_folder,get_target_from_csv
 from utils import save_solution
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
-train_folder = os.path.join(dir_path,"../train/")
-test_folder = os.path.join(dir_path,"../test/")
+train_folder = os.path.join(dir_path,r"train\\")
+test_folder = os.path.join(dir_path,r"test\\")
 
-train_target = os.path.join(dir_path,'../train_target.csv')
-my_solution_file = os.path.join(dir_path,'../solution.csv')
+train_target = os.path.join(dir_path,r'train_target.csv')
+my_solution_file = os.path.join(dir_path,r'solution.csv')
 
 tf_record_dir = os.path.join(dir_path, '..','tf_records')
 os.makedirs(tf_record_dir, exist_ok=True)
