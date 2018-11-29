@@ -20,7 +20,7 @@ def dataSetup():
     y = np.genfromtxt("y_train.csv", delimiter=",", skip_header=1)
     y = np.ravel(y[:, 1:])
 
-    return X,y,X_test
+    return X, y, X_test
 
 
 

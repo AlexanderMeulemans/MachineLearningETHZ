@@ -5,7 +5,7 @@ import numpy as np
 from biosppy.signals import ecg
 import pywt
 
-def extractFeatures(X,show = False):
+def extractFeatures(X, show=False):
     Fs = 300 #Hz
     X_all_features = np.empty((len(X), 13))
     for i in range(0, len(X)):
