@@ -12,6 +12,7 @@ test_folder = os.path.join(dir_path,"./test/")
 train_target = os.path.join(dir_path,'./train_target.csv')
 my_solution_file = os.path.join(dir_path,'./solution.csv')
 
+
 tf_record_dir = os.path.join(dir_path, '..','tf_records')
 os.makedirs(tf_record_dir, exist_ok=True)
 
