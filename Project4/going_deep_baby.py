@@ -51,74 +51,41 @@ def model():
     model = Sequential()
     model.add(TimeDistributed(Conv2D(64, (3,3), activation='relu'),
                               input_shape=(time_size, img_width, img_height, img_channels)))
-    model.add(TimeDistributed(MaxPooling2D(pool_size=(2, 2))))
+    model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(1, 1))))
 
-    model.add(TimeDistributed(Conv2D(128, (4,4), activation='relu', padding='same')))
-    model.add(TimeDistributed(MaxPooling2D(pool_size=(2, 2))))
+    model.add(TimeDistributed(Conv2D(128, (4, 4), activation='relu', padding='same')))
+    model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2))))
+
+    model.add(TimeDistributed(Conv2D(256, (4, 4), activation='relu')))
+    model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2))))
+
     model.add(TimeDistributed(Flatten()))
 
     model.add(LSTM(time_size, return_sequences=False, dropout=0.5))
     model.add(Dense(1, activation='sigmoid'))
 
     model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
-    model.summary()
-
     return model
 
-#
-# def lrcn():
-#     model = Sequential()
-#
-#     model.add(TimeDistributed(Conv2D(32, (7, 7), strides=(2, 2),
-#                                      activation='relu', padding='same'), input_shape=(None, 100, 100, 1)))
-#     model.add(TimeDistributed(Conv2D(32, (3, 3),
-#                                      kernel_initializer="he_normal", activation='relu')))
-#     model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2))))
-#
-#     model.add(TimeDistributed(Conv2D(64, (3, 3),
-#                                      padding='same', activation='relu')))
-#     model.add(TimeDistributed(Conv2D(64, (3, 3),
-#                                      padding='same', activation='relu')))
-#     model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2))))
-#
-#     model.add(TimeDistributed(Conv2D(128, (3, 3),
-#                                      padding='same', activation='relu')))
-#     model.add(TimeDistributed(Conv2D(128, (3, 3),
-#                                      padding='same', activation='relu')))
-#     model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2))))
-#
-#     model.add(TimeDistributed(Conv2D(256, (3, 3),
-#                                      padding='same', activation='relu')))
-#     model.add(TimeDistributed(Conv2D(256, (3, 3),
-#                                      padding='same', activation='relu')))
-#     model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2))))
-#
-#     model.add(TimeDistributed(Conv2D(512, (3, 3),
-#                                      padding='same', activation='relu')))
-#     model.add(TimeDistributed(Conv2D(512, (3, 3),
-#                                      padding='same', activation='relu')))
-#     model.add(TimeDistributed(MaxPooling2D((2, 2), strides=(2, 2))))
-#
-#     model.add(TimeDistributed(Flatten()))
-#
-#     model.add(Dropout(0.5))
-#     model.add(LSTM(256, return_sequences=False, dropout=0.5))
-#     model.add(Dense(1, activation='sigmoid'))
-#
-#     return model
-
-
 net = model()
-for e in range(number_of_epochs):
-    net.fit(X_train, y, initial_epoch=e, verbose=1, batch_size=15)
+print("fitting")
+net.fit(X_train, y, verbose=1, batch_size=15)
+print("done!")
 
-    y_pred = net.predict(X_train)
-    roc_auc = roc_auc_score(y, y_pred)
+benchmark_model_name = 'benchmark-model.h5'
+net.save(benchmark_model_name)
 
-    for i in range(10):
-        print(y_pred[i], y[i])
+y_pred = net.predict(X_train)
+roc_auc = roc_auc_score(y, y_pred)
+for i in range(10):
+    print(y_pred[i], y[i])
+print("\n\n loss: " + str(roc_auc))
 
-    print("\n\n loss: " + str(roc_auc))
+y_pred = net.predict_proba(X_train, batch_size=15, verbose=0)
+roc_auc = roc_auc_score(y, y_pred)
+for i in range(10):
+    print(y_pred[i], y[i])
+print("\n\n loss: " + str(roc_auc))
 
 print(net.evaluate(X_train, y))
 
