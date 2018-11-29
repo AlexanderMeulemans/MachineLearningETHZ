@@ -11,6 +11,8 @@ from tensorflow.python.keras.layers import Dropout, Dense, Conv3D, Conv2D, MaxPo
 from tensorflow.python.keras.utils import np_utils
 from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
 
+from sklearn.metrics import roc_auc_score
+
 print('------ opening files -------')
 dir_path = os.path.dirname(os.path.realpath(__file__))
 train_folder = os.path.join(dir_path,"./train/")
@@ -19,8 +21,8 @@ test_folder = os.path.join(dir_path,"./test/")
 train_target = os.path.join(dir_path,'./train_target.csv')
 my_solution_file = os.path.join(dir_path,'./solution.csv')
 
-X_train = get_videos_from_folder(train_folder)
 y = get_target_from_csv(train_target)
+X_train = get_videos_from_folder(train_folder)
 x_test = get_videos_from_folder(test_folder)
 
 def build_cnn():
@@ -43,19 +45,24 @@ time_size = 22
 img_width = 100
 img_height = 100
 img_channels = 1
+number_of_epochs = 10
 
 def model():
-    cnn = Sequential()
-    cnn.add(Conv2D(64, (3,3), activation='relu', padding='same', input_shape=(img_width,img_height,img_channels)))
-    cnn.add(MaxPooling2D(pool_size=(3, 3)))
-    cnn.add(Flatten())
-
     model = Sequential()
-    model.add(TimeDistributed(cnn, input_shape=(time_size, img_width, img_height, img_channels)))
-    model.add(LSTM(time_size))
-    model.add(Dense(26))
+    model.add(TimeDistributed(Conv2D(64, (3,3), activation='relu'),
+                              input_shape=(time_size, img_width, img_height, img_channels)))
+    model.add(TimeDistributed(MaxPooling2D(pool_size=(2, 2))))
 
-    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    model.add(TimeDistributed(Conv2D(128, (4,4), activation='relu', padding='same')))
+    model.add(TimeDistributed(MaxPooling2D(pool_size=(2, 2))))
+    model.add(TimeDistributed(Flatten()))
+
+    model.add(LSTM(time_size, return_sequences=False, dropout=0.5))
+    model.add(Dense(1, activation='sigmoid'))
+
+    model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+    model.summary()
+
     return model
 
 #
@@ -100,7 +107,22 @@ def model():
 #
 #     return model
 
+
 net = model()
-print(X_train[0].shape)
-net.fit(X_train[0], y, epochs=30, verbose=1)
+for e in range(number_of_epochs):
+    net.fit(X_train, y, initial_epoch=e, verbose=1, batch_size=15)
+
+    y_pred = net.predict(X_train)
+    roc_auc = roc_auc_score(y, y_pred)
+
+    for i in range(10):
+        print(y_pred[i], y[i])
+
+    print("\n\n loss: " + str(roc_auc))
+
+print(net.evaluate(X_train, y))
+
+
+
+
 
