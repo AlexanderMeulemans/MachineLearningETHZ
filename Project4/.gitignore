@@ -6,3 +6,4 @@
 **/test
 **/train
 *.pyc
+**/data_alex

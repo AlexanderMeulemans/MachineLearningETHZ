@@ -23,7 +23,7 @@ percentile = 100
 imputer = SimpleImputer()
 scaler = preprocessing.StandardScaler()
 selector = SelectPercentile(mutual_info_regression, percentile=percentile)
-<<<<<<< HEAD
+
 over_sample = BorderlineSMOTE()
 # 
 #model = SVC(class_weight='balanced',gamma = 'scale')
@@ -82,6 +82,6 @@ print(grid_search_rand.best_params_)
 #score = f1_score(Y, Y_pred, average='micro')
 #
 #print('average CV F1 score: ' + str(score))
-=======
+
 print('average CV F1 score: ' + str(score))
 >>>>>>> df5a3dcd6fc57d09f5a7e504e658567316a9747a
