@@ -19,7 +19,8 @@ def get_videos_from_folder(data_folder):
 				statinfo = os.stat(file_path)
 				if statinfo.st_size != 0:
 					video = skvideo.io.vread(file_path, outputdict={"-pix_fmt": "gray"})[:, :, :, 0]
-					video = np.expand_dims(video[:22,:,:], axis=3)
+					video = video[:22,:,:]
+					video = np.expand_dims(video, axis=3)
 					x.append(video)
 					file_names.append(int(filename.split(".")[0]))
 	return np.asarray(x)
