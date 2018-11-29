@@ -20,12 +20,9 @@ def get_videos_from_folder(data_folder):
 				if statinfo.st_size != 0:
 					video = skvideo.io.vread(file_path, outputdict={"-pix_fmt": "gray"})[:, :, :, 0]
 					video = np.expand_dims(video[:22,:,:], axis=3)
-					video = np.expand_dims(video, axis=0)
 					x.append(video)
 					file_names.append(int(filename.split(".")[0]))
-	# indices = sorted(range(len(file_names)), key=file_names.__getitem__)
-	# x = np.take(x,indices)
-	return x
+	return np.asarray(x)
 
 def get_target_from_csv(csv_file):
 	csv_file = os.path.join(dir_path, csv_file)
