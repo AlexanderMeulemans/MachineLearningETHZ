@@ -58,12 +58,10 @@ class_weights = class_weight.compute_class_weight('balanced', np.unique(Y), Y)
 # for train, test in kfold.split(X, Y):
 #     model = create_model()
 
-
 model = create_model()
 model.fit(X, dummy_y, epochs=30, batch_size=15, verbose=1,
           class_weight=class_weights, callbacks=[earlyStopping])
 # Y_pred[test] = np.argmax(model.predict(X[test]), axis=1)
-
 
 y_pred = model.predict(X_test)
 # print("---- scoring ----")
