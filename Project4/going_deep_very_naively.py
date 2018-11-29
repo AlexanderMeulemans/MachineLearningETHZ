@@ -1,12 +1,26 @@
 import tensorflow as tf
 import numpy as np
-from PIL import Image
-from matplotlib.pyplot import imshow
 from keras.models import Sequential
+from sklearn import preprocessing
 from keras.layers import Dense, Flatten, Activation, Dropout, Conv2D, MaxPooling2D
-from keras.utils import np_utils
 from extract_naive_data import X_train, X_val, X_test, y_train, y_val, squeeze_y, X_test_raw
 import csv
+
+# scale data
+scaler = preprocessing.StandardScaler()
+X_train_reshaped = np.reshape(X_train,(X_train.shape[0],X_train.shape[1]*X_train.shape[2]))
+X_test_reshaped = np.reshape(X_test,(X_test.shape[0],X_test.shape[1]*X_test.shape[2]))
+X_val_reshaped = np.reshape(X_val,(X_val.shape[0],X_val.shape[1]*X_val.shape[2]))
+X_train_reshaped = scaler.fit_transform(X_train_reshaped)
+X_test_reshaped = scaler.transform(X_test_reshaped)
+X_val_reshaped = scaler.transform(X_val_reshaped)
+X_train = np.reshape(X_train_reshaped,X_train.shape)
+X_test = np.reshape(X_test_reshaped,X_test.shape)
+X_val = np.reshape(X_val_reshaped, X_val.shape)
+
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+session = tf.Session(config=config)
 
 conv_net = Sequential()
 

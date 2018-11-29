@@ -46,4 +46,16 @@ def squeeze_y(y,X_raw):
     for i, x in enumerate(X_raw):
         x_len = x.shape[0]
         y_squeezed[i] = np.mean(y[index:index+x_len])
+        index += x_len
     return y_squeezed
+
+# def standardize(X, axis = 0):
+#     mean = np.mean(X,axis)
+#     std = np.std(X,axis)
+#     X_standardized = np.empty(X.shape)
+#     for i in range(X.shape[0]):
+#         X_standardized[i,:,:,:] =
+#     X_standardized = (X-mean)/std
+#     return X_standardized
+
+
