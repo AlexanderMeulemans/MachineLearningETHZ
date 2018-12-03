@@ -7,3 +7,5 @@
 **/train
 *.pyc
 **/data_alex
+*.npy
+*.txt

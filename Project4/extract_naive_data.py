@@ -27,7 +27,7 @@ X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1], X_test.shape[2], 
 
 # X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size = 0.15)
 
-min_length = 100000
+min_length = 100000000
 for sample in X_train_raw:
     min_length = min(min_length, sample.shape[0])
 for sample in X_test_raw:
@@ -43,8 +43,11 @@ for i,sample in enumerate(X_train_raw):
 for i,sample in enumerate(X_test_raw):
     X_test_clipped[i,:,:,:] = sample[0:min_length,:,:]
 
-
-
+y_train_clipped = y_train_raw
+X_train_clipped = np.reshape(X_train_clipped, (X_train_clipped.shape[0],X_train_clipped.shape[1], X_train_clipped.shape[2],
+                                              X_train_clipped.shape[3],1))
+X_test_clipped = np.reshape(X_test_clipped, (X_test_clipped.shape[0],X_test_clipped.shape[1], X_test_clipped.shape[2],
+                                              X_test_clipped.shape[3],1))
 
 
 
