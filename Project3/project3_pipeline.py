@@ -18,7 +18,6 @@ from tensorflow.python.keras import Sequential
 from tensorflow.python.keras.callbacks import EarlyStopping
 from tensorflow.python.keras.layers import Dropout, Dense
 from tensorflow.python.keras.utils import np_utils
-from tensorflow.python.keras.wrappers.scikit_learn import KerasClassifier
 
 print('------ opening files -------')
 X = np.loadtxt("X.txt", delimiter=",", dtype="float64")
