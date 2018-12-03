@@ -11,8 +11,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.utils import shuffle
 
 
-
-SHOULD_LOAD = False
+SHOULD_LOAD = True
 number_of_epochs = 20
 number_of_batches = 8
 
@@ -23,6 +22,8 @@ img_width = img_height = 100
 X = np.load("X.npy")
 X_test = np.load("X_test.npy")
 y = np.load("Y.npy")
+vote_map = np.load("vote_map.npy")
+
 X, y = shuffle(X, y, random_state=0)
 
 def model():
@@ -68,21 +69,16 @@ for i in range(10):
 roc_auc = roc_auc_score(y, y_pred)
 print("\n\n auc score: " + str(roc_auc))
 
-y_pred = []
-for i in range(69):
-    local = X_test[i]
-    length = local.shape[0]
-    votes = []
-    N = length // 20
-    for i in range(N):
-        start = i * 20
-        trim = np.asarray([local[start: start + 20, :, :, :]])
-        votes += [net.predict_proba(trim, verbose=1)[0]]
-    y_pred += [sum(votes) / N]
+y_pred, index = [], 0
+predictions = net.predict_proba(X_test, verbose=1)
+for i in range(vote_map.shape[0]):
+    N, votes = vote_map[i], []
+    for j in range(N):
+        votes += [predictions[index][0]]
+        index += 1
+    y_pred += [ sum(votes) / N ]
 
-y_pred = [ n[0] for n in y_pred]
-print(len(y_pred))
-print(y_pred)
+print(np.around(y_pred))
 
 
 
