@@ -11,11 +11,11 @@ from sklearn.metrics import roc_auc_score
 from sklearn.utils import shuffle
 
 
-SHOULD_LOAD = True
+SHOULD_LOAD = False
 number_of_epochs = 20
-number_of_batches = 8
+number_of_batches = 7
 
-time_size = 22
+time_size = 20
 img_width = img_height = 100
 
 # Data is formatted as (#batches, #frames, height, width, #channels)
@@ -42,7 +42,7 @@ def model():
     model.add(LSTM(time_size, return_sequences=False))
     model.add(Dense(1, activation='sigmoid'))
 
-    model.compile(loss='binary_crossentropy', optimizer=Adam(lr=0.0005), metrics=['accuracy'])
+    model.compile(loss='binary_crossentropy', optimizer=RMSprop(lr=0.001), metrics=['accuracy'])
     model.summary()
     return model
 
@@ -68,6 +68,7 @@ for i in range(10):
 
 roc_auc = roc_auc_score(y, y_pred)
 print("\n\n auc score: " + str(roc_auc))
+
 
 y_pred, index = [], 0
 predictions = net.predict_proba(X_test, verbose=1)
