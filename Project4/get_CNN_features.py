@@ -64,9 +64,10 @@ conv_net.fit(X_train, y_train,batch_size=32, nb_epoch=3, verbose=1)
 feature_extractor = Sequential()
 feature_extractor.add(Conv2D(32, (3, 3), activation='relu', input_shape=(100,100,1), weights=conv_net.layers[0].get_weights()))
 feature_extractor.add(MaxPooling2D(pool_size=(3,3)))
-# feature_extractor.add(Dropout(0.5))
+feature_extractor.add(Dropout(0.5))
 feature_extractor.add(Conv2D(64, (3, 3), activation='relu', weights=conv_net.layers[3].get_weights()))
 feature_extractor.add(MaxPooling2D(pool_size=(3,3)))
+#feature_extractor.add(Dropout(0.5))
 
 X_train_clipped_reshaped = np.reshape(X_train_clipped, (X_train_clipped.shape[0]*X_train_clipped.shape[1], 100, 100,1))
 X_train_CNN_reshaped = feature_extractor.predict(X_train_clipped_reshaped, verbose=1)
@@ -78,7 +79,7 @@ X_test_CNN = np.reshape(X_test_CNN_reshaped,(X_test_clipped.shape[0]*X_test_clip
 
 print(X_train_CNN.shape)
 
-np.savetxt('X_train_CNN', X_train_CNN)
-np.savetxt('X_test_CNN.txt', X_test_CNN)
+np.save('X_train_CNN.npy', X_train_CNN)
+np.save('X_test_CNN.npy', X_test_CNN)
 
 
