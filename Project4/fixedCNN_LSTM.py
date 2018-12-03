@@ -33,7 +33,7 @@ model.add(Dense(1, activation='sigmoid'))
 model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
 model.summary()
 
-callbacks = [keras.callbacks.EarlyStopping(patience=3)]
+callbacks = [keras.callbacks.EarlyStopping(patience=3), keras.callbacks.ReduceLROnPlateau(patience=1)]
 
 model.fit(X_train, y_train, epochs =20, callbacks=callbacks, verbose=1, batch_size=32, validation_data=(X_val, y_val))
 
