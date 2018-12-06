@@ -1,0 +1,11 @@
+*.csv
+
+*.iml
+*.xml
+*.avi
+**/test
+**/train
+*.pyc
+**/data_alex
+*.npy
+*.txt
