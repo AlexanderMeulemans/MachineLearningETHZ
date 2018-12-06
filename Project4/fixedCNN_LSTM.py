@@ -9,8 +9,8 @@ from extract_naive_data import y_train_clipped
 import csv
 from sklearn.model_selection import train_test_split
 
-X_train = np.load('X_train_CNN.npy')
-X_test = np.load('X_test_CNN.npy')
+X_train = np.load('X_train_CNN_85.npy')
+X_test = np.load('X_test_CNN_85.npy')
 y_train = y_train_clipped
 
 variance_selector = VarianceThreshold()
@@ -24,7 +24,7 @@ X_test = scaler.transform(X_test)
 X_train = np.reshape(X_train,(158,22,-1))
 X_test = np.reshape(X_test, (69,22,-1))
 
-X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size = 0.13)
+# X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size = 0.13)
 
 model = Sequential()
 model.add(LSTM(50, activity_regularizer = keras.regularizers.l2(0.01),input_shape=(X_train.shape[1],X_train.shape[2])))
@@ -35,7 +35,8 @@ model.summary()
 
 callbacks = [keras.callbacks.EarlyStopping(patience=3)]#, keras.callbacks.ReduceLROnPlateau(patience=1)]
 
-model.fit(X_train, y_train, epochs =20, callbacks=callbacks, verbose=1, batch_size=32, validation_data=(X_val, y_val))
+# model.fit(X_train, y_train, epochs =20, callbacks=callbacks, verbose=1, batch_size=32, validation_data=(X_val, y_val))
+model.fit(X_train, y_train, epochs =8, verbose=1, batch_size=32)
 
 
 y_pred = model.predict(X_test, verbose=1)

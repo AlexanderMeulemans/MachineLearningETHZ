@@ -67,7 +67,7 @@ feature_extractor.add(MaxPooling2D(pool_size=(3,3)))
 feature_extractor.add(Dropout(0.5))
 feature_extractor.add(Conv2D(64, (3, 3), activation='relu', weights=conv_net.layers[3].get_weights()))
 feature_extractor.add(MaxPooling2D(pool_size=(3,3)))
-feature_extractor.add(Dropout(0.5))
+#feature_extractor.add(Dropout(0.5))
 
 X_train_clipped_reshaped = np.reshape(X_train_clipped, (X_train_clipped.shape[0]*X_train_clipped.shape[1], 100, 100,1))
 X_train_CNN_reshaped = feature_extractor.predict(X_train_clipped_reshaped, verbose=1)
