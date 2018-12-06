@@ -108,4 +108,3 @@ def extractFeatures4(X, show = False):
 
 
     return X_all_features
-
