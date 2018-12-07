@@ -14,7 +14,7 @@ from alex_featureselection import feature_extractor_eeg
 import csv
 from alex_masterplan import AlexClassifier
 
-def fit_pipelines(pipe1, pipe2)
+
 
 print('------ opening files -------')
 X = pd.read_csv('train_eeg1.csv', sep=',', index_col=0)
