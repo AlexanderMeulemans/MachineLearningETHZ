@@ -80,6 +80,7 @@ def preprocess_all_data(preprocessed_data_dir):
             continue
 
         X = np.concatenate((X, curr_X), axis=1)
+
         X_test = np.concatenate((X_test, curr_X_test), axis=1)
 
     np.save(preprocessed_data_dir + "X_all.npy", X)
