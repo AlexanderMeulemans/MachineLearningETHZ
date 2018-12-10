@@ -11,33 +11,34 @@ from imblearn.pipeline import Pipeline
 
 class AlexClassifier(object):
 
-    def __init__(self, scaler):
-        model = skl.RandomForestClassifier(class_weight='balanced')
-        pipeline = Pipeline([
-            ('standardizer', scaler),
-            ('model', model)
-        ])
-        self.pipeline_base = pipeline
-
-        model2 = skl.RandomForestClassifier(class_weight='balanced')
-        self.pipeline_phase1 = Pipeline([
-            ('standardizer', scaler),
-            ('model', model2)
-        ])
+    def __init__(self, depth):
+        assert depth >= 1
+        self.depth = depth
+        self.pipelines = list()
+        for _ in range(depth):
+            self.pipelines += [
+                Pipeline([
+                    ('standardizer', preprocessing.StandardScaler()),
+                    ('model', skl.RandomForestClassifier(class_weight='balanced'))
+                ])
+            ]
 
     def fit(self,X,Y):
-        self.pipeline_base.fit(X,Y)
-        Y_logprob = self.pipeline_base.predict_proba(X)
-        X_updated = update_features(X,Y_logprob)
-        self.pipeline_phase1.fit(X_updated, Y)
+        curr_X, depth = X, self.depth
+        for i in range(0, self.depth):
+            curr_pipeline = self.pipelines[i]
+            curr_pipeline.fit(curr_X, Y)
+            y_prob = curr_pipeline.predict_proba(curr_X)
+            if i != self.depth - 1: curr_X = update_features(X, y_prob)
+        return y_prob
 
     def predict(self,X):
-        Y_prob = []
-        for x in X:
-            Y_prob += [self.pipeline_base.predict_proba(X)]
-        X_updated = update_features(X, Y_prob)
-        Y_pred = self.pipeline_phase1.predict(X_updated)
-        return Y_pred
+        curr_X, depth = X, self.depth
+        for i in range(0, self.depth - 1):
+            y_prob = self.pipelines[i].predict_proba(curr_X)
+            curr_X = update_features(X, y_prob)
+
+        return self.pipelines[-1].predict(curr_X)
 
     def crossvalidate(self,X,Y):
         X_s1 = X[0:21600,:]
@@ -62,7 +63,7 @@ class AlexClassifier(object):
             cv_score.append(score)
         return cv_score
 
-def update_features(X,y_prob):
+def update_features(X, y_prob):
     pred_delay1 = np.concatenate((np.reshape(y_prob[0,:],(1,-1)),y_prob[0:-1,:]),axis=0)
     pred_delay2 = np.concatenate((np.reshape(y_prob[0,:],(1,-1)), np.reshape(y_prob[0,:],(1,-1)), y_prob[0:-2,:]), axis=0)
     pred_forward1 = np.concatenate((y_prob[1:,:],np.reshape(y_prob[-1,:],(1,-1))),axis=0)

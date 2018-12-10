@@ -1,3 +1,8 @@
+def warn(*args, **kwargs):
+    pass
+import warnings
+warnings.warn = warn
+
 from sklearn.feature_selection import mutual_info_regression, SelectPercentile
 from sklearn import preprocessing
 from sklearn.model_selection import cross_val_predict, KFold
@@ -82,56 +87,36 @@ Y = np.asarray(Y)
 Y = np.ravel(Y)
 
 
-print(" ------- building model ------- ")
-percentile = 100
-imputer = SimpleImputer()
-scaler = preprocessing.StandardScaler()
-selector = SelectPercentile(mutual_info_regression, percentile=percentile)
+print('------ Training Classifier -------')
+model_alex = AlexClassifier(depth=5)
+model_alex.fit(X,Y)
 
-model = skl.RandomForestClassifier(class_weight='balanced')
-pipeline = Pipeline([
-    #('imputer', imputer),
-    ('standardizer', scaler),
-    ('MI', selector),
-    ('model', model)
-])
-print(" ------- done building model ------- ")
+y_prob = model_alex.predict(X)
+score = balanced_accuracy_score(Y, y_prob)
+print('average CV F1 score: ' + str(score))
 
-print('------ Training classifier with CV -------')
-if do_grid_search:
-    results = grid_treepipe_search(pipeline,X,Y)
-else:
-    if own_model:
-        model_alex = AlexClassifier(scaler)
-        print('---- run on test data -----')
-
-        model_alex.fit(X,Y)
-        model_alex.hue(X_test)
+y_pred = model_alex.predict(X_test)
 
 
-        # cv_results = model_alex.crossvalidate(X,Y)
-        # print('CV results: {}'.format(cv_results))
+# print("----- crossvalidating ----- ")
+# cv = KFold(n_splits=3, shuffle=False)
+# Y_pred = cross_val_predict(pipeline, X, Y, cv=cv, verbose=1)
+# score = balanced_accuracy_score(Y, Y_pred)
+#
+# print('average CV F1 score: ' + str(score))
+#
+# print('---- Run on test data -------')
+# model = skl.RandomForestClassifier(class_weight='balanced', n_estimators=100)
+# pipeline = Pipeline([
+#     ('standardizer', scaler),
+#     ('model', model)
+# ])
+# pipeline.fit(X, Y)
+# y_pred = pipeline.predict(X_test)
 
-    else:
-        print("----- crossvalidating ----- ")
-        cv = KFold(n_splits=3, shuffle=False)
-        Y_pred = cross_val_predict(pipeline, X, Y, cv=cv, verbose=1)
-        score = balanced_accuracy_score(Y, Y_pred)
-
-        print('average CV F1 score: ' + str(score))
-
-        print('---- Run on test data -------')
-        model = skl.RandomForestClassifier(class_weight='balanced', n_estimators=100)
-        pipeline = Pipeline([
-            ('standardizer', scaler),
-            ('model', model)
-        ])
-        pipeline.fit(X, Y)
-        y_pred = pipeline.predict(X_test)
-
-    print('writing to file')
-    with open('result.csv', mode='w') as csv_file:
-        writer = csv.writer(csv_file, delimiter=',')
-        writer.writerow(['Id', 'y'])
-        for i in range(len(y_pred)):
-            writer.writerow([i, y_pred[i]])
+print('writing to file')
+with open('result.csv', mode='w') as csv_file:
+    writer = csv.writer(csv_file, delimiter=',')
+    writer.writerow(['Id', 'y'])
+    for i in range(len(y_pred)):
+        writer.writerow([i, y_pred[i]])
