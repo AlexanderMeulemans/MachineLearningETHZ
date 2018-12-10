@@ -1,29 +1,4 @@
-def warn(*args, **kwargs):
-    pass
-import warnings
-warnings.warn = warn
 
-from sklearn.feature_selection import mutual_info_regression, SelectPercentile
-from sklearn import preprocessing
-from sklearn.model_selection import cross_val_predict, KFold
-from sklearn.metrics import f1_score, make_scorer, balanced_accuracy_score
-from sklearn.impute import SimpleImputer
-import sklearn.ensemble as skl
-from sklearn.model_selection import RandomizedSearchCV
-import numpy as np
-import imblearn.ensemble as imb
-from sklearn.pipeline import Pipeline
-from sklearn.svm import SVC
-import pandas as pd
-from alex_featureselection import feature_extractor_eeg
-import csv
-import os
-from alex_masterplan import AlexClassifier
-
-do_grid_search = False
-own_model = True
-should_preprocess = False
-preprocessed_data_dir = "./preprocessed/"
 
 def grid_treepipe_search(pipeline,X,Y):
     # Number of trees in random forest
@@ -62,7 +37,8 @@ def grid_treepipe_search(pipeline,X,Y):
     print(grid_search_rand.cv_results_)
     return grid_search_rand
 
-if should_preprocess:
+
+def preprocess_data(preprocessed_data_dir):
     print('\n********* Preprocessing Data')
     if not os.path.exists(preprocessed_data_dir):
         os.makedirs(preprocessed_data_dir)
@@ -76,47 +52,10 @@ if should_preprocess:
     np.save(preprocessed_data_dir + "X.npy", X)
     np.save(preprocessed_data_dir + "X_test.npy", X_test)
     print('\n********* Done Processing')
+    return X, X_test
 
-else:
+
+def load_data(preprocessed_data_dir):
     X = np.load(preprocessed_data_dir + "X.npy")
     X_test = np.load(preprocessed_data_dir + "X_test.npy")
-
-
-Y = pd.read_csv('train_labels.csv', sep=',', index_col=0)
-Y = np.asarray(Y)
-Y = np.ravel(Y)
-
-
-print('\n********* Training AlexClassifier')
-model_alex = AlexClassifier(depth=3)
-model_alex.fit(X,Y)
-
-y_prob = model_alex.predict(X)
-score = balanced_accuracy_score(Y, y_prob)
-print('average CV F1 score: ' + str(score))
-
-y_pred = model_alex.predict(X_test)
-
-
-# print("----- crossvalidating ----- ")
-# cv = KFold(n_splits=3, shuffle=False)
-# Y_pred = cross_val_predict(pipeline, X, Y, cv=cv, verbose=1)
-# score = balanced_accuracy_score(Y, Y_pred)
-#
-# print('average CV F1 score: ' + str(score))
-#
-# print('---- Run on test data -------')
-# model = skl.RandomForestClassifier(class_weight='balanced', n_estimators=100)
-# pipeline = Pipeline([
-#     ('standardizer', scaler),
-#     ('model', model)
-# ])
-# pipeline.fit(X, Y)
-# y_pred = pipeline.predict(X_test)
-
-print('\n********* Writing to file')
-with open('result.csv', mode='w') as csv_file:
-    writer = csv.writer(csv_file, delimiter=',')
-    writer.writerow(['Id', 'y'])
-    for i in range(len(y_pred)):
-        writer.writerow([i, y_pred[i]])
+    return X, X_test
