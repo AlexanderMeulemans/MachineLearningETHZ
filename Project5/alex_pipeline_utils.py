@@ -5,7 +5,7 @@ from sklearn.model_selection import RandomizedSearchCV
 import numpy as np
 import pandas as pd
 import os
-from alex_featureselection import feature_extractor_eeg, feature_extractor_combined
+from alex_featureselection import *
 
 
 def grid_treepipe_search(pipeline,X,Y):
@@ -74,7 +74,7 @@ def preprocess_all_data(preprocessed_data_dir):
         curr_X_test = pd.read_csv('test_' + data_type + '.csv', index_col=0)
         curr_X_test = extract_feature(np.asarray(curr_X_test), data_type == 'emg')
 
-        if not X:
+        if X is None:
             X = curr_X
             X_test = curr_X_test
             continue
