@@ -12,7 +12,7 @@ from sklearn.svm import SVC
 import pandas as pd
 from alex_featureselection import feature_extractor_eeg
 import csv
-from alex_masterplan import AlexClassifier
+from alex_classifier import AlexClassifier
 
 
 print('------ opening files -------')

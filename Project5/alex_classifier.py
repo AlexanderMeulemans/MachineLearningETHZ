@@ -40,6 +40,14 @@ class AlexClassifier(object):
 
         return self.pipelines[-1].predict(curr_X)
 
+    def predict_proba(self,X):
+        curr_X, depth = X, self.depth
+        for i in range(0, self.depth - 1):
+            y_prob = self.pipelines[i].predict_proba(curr_X)
+            curr_X = update_features(X, y_prob)
+
+        return self.pipelines[-1].predict_proba(curr_X)
+
     def crossvalidate(self,X,Y):
         X_s1 = X[0:21600,:]
         X_s2 = X[21600:43200,:]

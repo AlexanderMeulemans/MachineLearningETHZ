@@ -46,24 +46,24 @@ def grid_treepipe_search(pipeline,X,Y):
     return grid_search_rand
 
 
-def preprocess_data(preprocessed_data_dir):
+def preprocess_data(preprocessed_data_dir, data_type):
     print('\n********* Preprocessing Data')
     if not os.path.exists(preprocessed_data_dir):
         os.makedirs(preprocessed_data_dir)
 
-    X = pd.read_csv('train_eeg1.csv', sep=',', index_col=0)
+    X = pd.read_csv('train_' + data_type + '.csv', sep=',', index_col=0)
     X = feature_extractor_eeg(np.asarray(X))
 
-    X_test = pd.read_csv('test_eeg1.csv', sep=',', index_col=0)
+    X_test = pd.read_csv('test_' + data_type + '.csv', sep=',', index_col=0)
     X_test = feature_extractor_eeg(np.asarray(X_test))
 
-    np.save(preprocessed_data_dir + "X.npy", X)
-    np.save(preprocessed_data_dir + "X_test.npy", X_test)
+    np.save(preprocessed_data_dir + "X_" + data_type + ".npy", X)
+    np.save(preprocessed_data_dir + "X_" + data_type +"_test.npy", X_test)
     print('\n********* Done Processing')
     return X, X_test
 
 
-def load_data(preprocessed_data_dir):
-    X = np.load(preprocessed_data_dir + "X.npy")
-    X_test = np.load(preprocessed_data_dir + "X_test.npy")
+def load_data(preprocessed_data_dir, data_type):
+    X = np.load(preprocessed_data_dir + "X_" + data_type + ".npy")
+    X_test = np.load(preprocessed_data_dir + "X_" + data_type +"_test.npy")
     return X, X_test
