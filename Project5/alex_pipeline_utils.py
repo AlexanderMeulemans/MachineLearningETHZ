@@ -51,10 +51,10 @@ def preprocess_data(preprocessed_data_dir, data_type):
     if not os.path.exists(preprocessed_data_dir):
         os.makedirs(preprocessed_data_dir)
 
-    X = pd.read_csv('train_' + data_type + '.csv', sep=',', index_col=0)
+    X = pd.read_csv('train_' + data_type + '.csv', index_col=0)
     X = feature_extractor_eeg(np.asarray(X))
 
-    X_test = pd.read_csv('test_' + data_type + '.csv', sep=',', index_col=0)
+    X_test = pd.read_csv('test_' + data_type + '.csv', index_col=0)
     X_test = feature_extractor_eeg(np.asarray(X_test))
 
     np.save(preprocessed_data_dir + "X_" + data_type + ".npy", X)
@@ -67,26 +67,26 @@ def preprocess_all_data(preprocessed_data_dir):
     if not os.path.exists(preprocessed_data_dir):
         os.makedirs(preprocessed_data_dir)
 
-    X = pd.read_csv('train_eeg1.csv', sep=',', index_col=0)
-    X = feature_extractor_eeg(np.asarray(X))
-    X2 = pd.read_csv('train_eeg2.csv', sep=',', index_col=0)
-    EMG = pd.read_csv('train_eeg2.csv', sep=',', index_col=0)
-    X2 = feature_extractor_combined(np.asarray(X2),np.asarray(EMG))
-    X = np.concatenate((X,X2),axis=1)
+    X = X_test = None
+    for data_type in ('eeg1', 'eeg2', 'emg'):
+        curr_X = pd.read_csv('train_' + data_type + '.csv', index_col=0)
+        curr_X = extract_feature(np.asarray(curr_X), data_type == 'emg')
+        curr_X_test = pd.read_csv('test_' + data_type + '.csv', index_col=0)
+        curr_X_test = extract_feature(np.asarray(curr_X_test), data_type == 'emg')
 
-    X_test = pd.read_csv('test_eeg1.csv', sep=',', index_col=0)
-    X_test = feature_extractor_eeg(np.asarray(X_test))
-    X2_test = pd.read_csv('test_eeg2.csv', sep=',', index_col=0)
-    EMG = pd.read_csv('test_emg.csv', sep=',', index_col=0)
-    X2_test = feature_extractor_combined(np.asarray(X2_test),np.asarray(EMG))
-    X_test = np.concatenate((X_test,X2_test),axis=1)
+        if not X:
+            X = curr_X
+            X_test = curr_X_test
+            continue
 
+        X = np.concatenate((X, curr_X), axis=1)
+        X_test = np.concatenate((X_test, curr_X_test), axis=1)
 
     np.save(preprocessed_data_dir + "X_all.npy", X)
     np.save(preprocessed_data_dir + "X_all_test.npy", X_test)
+
     print('\n********* Done Processing')
     return X, X_test
-
 
 def load_data(preprocessed_data_dir, data_type):
     X = np.load(preprocessed_data_dir + "X_" + data_type + ".npy")

@@ -20,4 +20,3 @@ class AllanClassifier(object):
 
     def crossvalidate(self,X,Y):
         pass
-
