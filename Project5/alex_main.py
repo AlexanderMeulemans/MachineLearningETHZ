@@ -3,23 +3,11 @@ def warn(*args, **kwargs):
 import warnings
 warnings.warn = warn
 
-from sklearn.feature_selection import mutual_info_regression, SelectPercentile
-from sklearn import preprocessing
-from sklearn.model_selection import cross_val_predict, KFold
-from sklearn.metrics import f1_score, make_scorer, balanced_accuracy_score
-from sklearn.impute import SimpleImputer
-import sklearn.ensemble as skl
-from sklearn.model_selection import RandomizedSearchCV
 import numpy as np
-import imblearn.ensemble as imb
-from sklearn.pipeline import Pipeline
-from sklearn.svm import SVC
 import pandas as pd
-from alex_featureselection import feature_extractor_eeg
 import csv
-import os
 from alex_masterplan import AlexClassifier
-import alex_pipeline_utils
+from alex_pipeline_utils import *
 
 should_preprocess = False
 preprocess_dir = "./preprocessed/"
