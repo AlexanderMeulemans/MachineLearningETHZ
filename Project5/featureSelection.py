@@ -4,11 +4,8 @@
 import numpy as np
 # import pywt
 
-
 def extractFeatures9(X):
     Fs = 128
-    
-
 
 def extractFeatures(X, show=False):
     Fs = 300 #Hz

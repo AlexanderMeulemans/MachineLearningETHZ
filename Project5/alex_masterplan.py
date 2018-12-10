@@ -11,7 +11,7 @@ from imblearn.pipeline import Pipeline
 
 class AlexClassifier(object):
 
-    def __init__(self,scaler):
+    def __init__(self, scaler):
         model = skl.RandomForestClassifier(class_weight='balanced')
         pipeline = Pipeline([
             ('standardizer', scaler),
@@ -22,7 +22,7 @@ class AlexClassifier(object):
         model2 = skl.RandomForestClassifier(class_weight='balanced')
         self.pipeline_phase1 = Pipeline([
             ('standardizer', scaler),
-            ('model', model)
+            ('model', model2)
         ])
 
     def fit(self,X,Y):
@@ -32,16 +32,12 @@ class AlexClassifier(object):
         self.pipeline_phase1.fit(X_updated, Y)
 
     def predict(self,X):
-        Y_prob = self.pipeline_base.predict_proba(X)
+        Y_prob = []
+        for x in X:
+            Y_prob += [self.pipeline_base.predict_proba(X)]
         X_updated = update_features(X, Y_prob)
         Y_pred = self.pipeline_phase1.predict(X_updated)
         return Y_pred
-
-    # def predict(self,X):
-    #     Y_logprob = self.pipeline_base.predict_proba(X)
-    #     X_updated = update_features(X, Y_logprob)
-    #     Y_pred = self.pipeline_phase1.predict(X_updated)
-    #     return Y_pred
 
     def crossvalidate(self,X,Y):
         X_s1 = X[0:21600,:]
@@ -66,10 +62,6 @@ class AlexClassifier(object):
             cv_score.append(score)
         return cv_score
 
-
-
-
-
 def update_features(X,y_prob):
     pred_delay1 = np.concatenate((np.reshape(y_prob[0,:],(1,-1)),y_prob[0:-1,:]),axis=0)
     pred_delay2 = np.concatenate((np.reshape(y_prob[0,:],(1,-1)), np.reshape(y_prob[0,:],(1,-1)), y_prob[0:-2,:]), axis=0)
@@ -77,4 +69,3 @@ def update_features(X,y_prob):
     pred_forward2 = np.concatenate((y_prob[2:,:],np.reshape(y_prob[-1,:],(1,-1)),np.reshape(y_prob[-1,:],(1,-1))),axis=0)
     X_updated = np.concatenate((X, pred_delay2, pred_delay1, pred_forward1, pred_forward2), axis=1)
     return X_updated
-

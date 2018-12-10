@@ -15,7 +15,6 @@ import csv
 from alex_masterplan import AlexClassifier
 
 
-
 print('------ opening files -------')
 X = pd.read_csv('train_eeg1.csv', sep=',', index_col=0)
 X = np.asarray(X)
@@ -48,8 +47,3 @@ pipeline_phase1 = Pipeline([
     #('MI', selector),
     ('model', model)
 ])
-
-
-
-
-

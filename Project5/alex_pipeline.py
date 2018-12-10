@@ -12,10 +12,13 @@ from sklearn.svm import SVC
 import pandas as pd
 from alex_featureselection import feature_extractor_eeg
 import csv
+import os
 from alex_masterplan import AlexClassifier
 
 do_grid_search = False
 own_model = True
+should_preprocess = False
+preprocessed_data_dir = "./preprocessed/"
 
 def grid_treepipe_search(pipeline,X,Y):
     # Number of trees in random forest
@@ -54,21 +57,32 @@ def grid_treepipe_search(pipeline,X,Y):
     print(grid_search_rand.cv_results_)
     return grid_search_rand
 
+if should_preprocess:
+    print('------ preprocessing data -------')
+    if not os.path.exists(preprocessed_data_dir):
+        os.makedirs(preprocessed_data_dir)
 
-print('------ opening files -------')
-X = pd.read_csv('train_eeg1.csv', sep=',', index_col=0)
-X = np.asarray(X)
-X = feature_extractor_eeg(X)
-# %%
+    X = pd.read_csv('train_eeg1.csv', sep=',', index_col=0)
+    X = feature_extractor_eeg(np.asarray(X))
+
+    X_test = pd.read_csv('test_eeg1.csv', sep=',', index_col=0)
+    X_test = feature_extractor_eeg(np.asarray(X_test))
+
+    np.save(preprocessed_data_dir + "X.npy", X)
+    np.save(preprocessed_data_dir + "X_test.npy", X_test)
+    print("------- done processing! -------")
+
+else:
+    X = np.load(preprocessed_data_dir + "X.npy")
+    X_test = np.load(preprocessed_data_dir + "X_test.npy")
+
+
 Y = pd.read_csv('train_labels.csv', sep=',', index_col=0)
 Y = np.asarray(Y)
 Y = np.ravel(Y)
 
-X_test = pd.read_csv('test_eeg1.csv', sep=',', index_col=0)
-X_test = np.asarray(X_test)
-X_test = feature_extractor_eeg(X_test)
 
-print('------ Training classifier with CV -------')
+print(" ------- building model ------- ")
 percentile = 100
 imputer = SimpleImputer()
 scaler = preprocessing.StandardScaler()
@@ -81,21 +95,27 @@ pipeline = Pipeline([
     ('MI', selector),
     ('model', model)
 ])
+print(" ------- done building model ------- ")
 
+print('------ Training classifier with CV -------')
 if do_grid_search:
     results = grid_treepipe_search(pipeline,X,Y)
 else:
     if own_model:
         model_alex = AlexClassifier(scaler)
+        print('---- run on test data -----')
+
+        model_alex.fit(X,Y)
+        model_alex.hue(X_test)
+
+
         # cv_results = model_alex.crossvalidate(X,Y)
         # print('CV results: {}'.format(cv_results))
-        print('---- run on test data -----')
-        model_alex.fit(X,Y)
-        y_pred = model_alex.predict(X_test)
 
     else:
+        print("----- crossvalidating ----- ")
         cv = KFold(n_splits=3, shuffle=False)
-        Y_pred = cross_val_predict(pipeline, X, Y, cv=cv)
+        Y_pred = cross_val_predict(pipeline, X, Y, cv=cv, verbose=1)
         score = balanced_accuracy_score(Y, Y_pred)
 
         print('average CV F1 score: ' + str(score))
@@ -115,8 +135,3 @@ else:
         writer.writerow(['Id', 'y'])
         for i in range(len(y_pred)):
             writer.writerow([i, y_pred[i]])
-
-
-
-
-

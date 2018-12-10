@@ -22,6 +22,7 @@ img_width = img_height = 100
 X = np.load("X.npy")
 X_test = np.load("X_test.npy")
 y = np.load("Y.npy")
+print(len(y))
 vote_map = np.load("vote_map.npy")
 
 X, y = shuffle(X, y, random_state=0)
