@@ -19,7 +19,7 @@ class AlexClassifier(object):
             self.pipelines += [
                 Pipeline([
                     ('standardizer', preprocessing.StandardScaler()),
-                    ('model', skl.RandomForestClassifier(class_weight='balanced'))
+                    ('model', skl.RandomForestClassifier(class_weight='balanced',n_estimators = 100))
                 ])
             ]
 

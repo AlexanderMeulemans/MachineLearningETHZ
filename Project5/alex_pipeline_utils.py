@@ -5,7 +5,7 @@ from sklearn.model_selection import RandomizedSearchCV
 import numpy as np
 import pandas as pd
 import os
-from alex_featureselection import feature_extractor_eeg
+from alex_featureselection import feature_extractor_eeg, feature_extractor_combined
 
 
 def grid_treepipe_search(pipeline,X,Y):
@@ -59,6 +59,31 @@ def preprocess_data(preprocessed_data_dir, data_type):
 
     np.save(preprocessed_data_dir + "X_" + data_type + ".npy", X)
     np.save(preprocessed_data_dir + "X_" + data_type +"_test.npy", X_test)
+    print('\n********* Done Processing')
+    return X, X_test
+
+def preprocess_all_data(preprocessed_data_dir):
+    print('\n********* Preprocessing Data')
+    if not os.path.exists(preprocessed_data_dir):
+        os.makedirs(preprocessed_data_dir)
+
+    X = pd.read_csv('train_eeg1.csv', sep=',', index_col=0)
+    X = feature_extractor_eeg(np.asarray(X))
+    X2 = pd.read_csv('train_eeg2.csv', sep=',', index_col=0)
+    EMG = pd.read_csv('train_eeg2.csv', sep=',', index_col=0)
+    X2 = feature_extractor_combined(np.asarray(X2),np.asarray(EMG))
+    X = np.concatenate((X,X2),axis=1)
+
+    X_test = pd.read_csv('test_eeg1.csv', sep=',', index_col=0)
+    X_test = feature_extractor_eeg(np.asarray(X_test))
+    X2_test = pd.read_csv('test_eeg2.csv', sep=',', index_col=0)
+    EMG = pd.read_csv('test_emg.csv', sep=',', index_col=0)
+    X2_test = feature_extractor_combined(np.asarray(X2_test),np.asarray(EMG))
+    X_test = np.concatenate((X_test,X2_test),axis=1)
+
+
+    np.save(preprocessed_data_dir + "X_all.npy", X)
+    np.save(preprocessed_data_dir + "X_all_test.npy", X_test)
     print('\n********* Done Processing')
     return X, X_test
 

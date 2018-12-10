@@ -16,7 +16,7 @@ def feature_extractor_eeg(X):
     idx_beta2 = math.ceil(37.50/Fs*X_len)
     idx_gamma = math.ceil(X_len/2-1)
 
-    X = np.fft.fft(X)
+    X = np.fft.rfft(X)
     X = np.abs(X)
 
     E_total = np.sum(np.power(X,2),1)
@@ -86,5 +86,16 @@ def feature_extractor_combined(X, emg):
     E_ratio3 = np.divide(E_theta, E_alpha + E_delta)
     features = np.concatenate((E_total, E_dc, E_delta, E_theta, E_alpha, E_spindle, E_beta1, E_beta2, E_gamma,
                                E_ratio1, E_ratio2, E_ratio3), axis=1)
+    
+    emg_feat = np.zeros([len(emg),3])
+    E_total=np.sum(np.power(emg,2),1)
+    emg_feat[:,0]=np.reshape(E_total,(E_total.shape[0]))
+    for i in range(len(emg)):
+        hist = np.histogram(emg[i,:],bins=50)
+        data = hist[0]
+        emg_feat[i,1] = -(data*np.ma.log(np.abs(data))).sum()
+    
+    emg_feat[:,2]=np.percentile(emg,axis = 1, q=75)
+    features = np.concatenate((features, emg_feat), axis=1)
     return features
 

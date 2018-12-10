@@ -8,11 +8,12 @@ import sklearn.ensemble as skl
 from sklearn.model_selection import RandomizedSearchCV
 import numpy as np
 import imblearn.ensemble as imb
-from imblearn.pipeline import Pipeline
+from sklearn.pipeline import Pipeline
 import xgboost.sklearn as xg
 from sklearn.svm import SVC
 import pandas as pd
-
+from alex_pipeline_utils import *
+import csv
 
 def grid_treepipe_search():
     
@@ -45,32 +46,28 @@ def grid_treepipe_search():
 
 
 print('------ opening files -------')
-X = pd.read_csv('train_eeg1.csv',sep=',',index_col=0)
-X = np.asarray(X)
-X = np.fft.fft(X)
-X = np.abs(X)
+should_preprocess = True
+preprocess_dir = "./preprocessed/"
+#
+#X, X_test = (preprocess_all_data(preprocess_dir) if
+#                should_preprocess else load_data(preprocess_dir, "eeg1"))
+#Y = np.ravel(np.asarray(pd.read_csv('train_labels.csv', sep=',', index_col=0)))
+
+X, X_test = (preprocess_data(preprocess_dir, "eeg1") if
+                should_preprocess else load_data(preprocess_dir, "eeg1"))
+Y = np.ravel(np.asarray(pd.read_csv('train_labels.csv', sep=',', index_col=0)))
+
 #%%
-Y = pd.read_csv('train_labels.csv',sep=',',index_col=0)
-Y = np.asarray(Y)
-Y = np.ravel(Y)
-
-X_test = pd.read_csv('test_eeg1.csv',sep=',',index_col=0)
-X_test = np.asarray(X_test)
-X_test = np.fft.fft(X_test)
-X_test = np.abs(X_test)
-
 print('------ Training classifier with CV -------')
 percentile = 100
 imputer = SimpleImputer()
 scaler = preprocessing.StandardScaler()
 selector = SelectPercentile(mutual_info_regression, percentile=percentile)
 
+model = skl.RandomForestClassifier(class_weight='balanced',n_estimators=100)
 
-model = skl.RandomForestClassifier(class_weight='balanced')
-pipeline = Pipeline([
-                    ('imputer',imputer),
-                    ('standardizer', scaler),
-                    ('MI', selector),
+model = SVC(class_weight='balanced')
+model = Pipeline([('standardizer', scaler),
                     ('model',model)
                     ])
     
@@ -78,4 +75,14 @@ cv = KFold(n_splits=3,shuffle=False)
 Y_pred = cross_val_predict(model, X, Y, cv=cv)
 score = balanced_accuracy_score(Y, Y_pred)
 
-print('average CV F1 score: ' + str(score))
+print('balanced accuracy score: ' + str(score))
+
+print('\n********* Writing to file')
+model.fit(X,Y)
+y_pred=model.predict(X_test)
+#%%
+with open('result.csv', mode='w') as csv_file:
+    writer = csv.writer(csv_file, delimiter=',')
+    writer.writerow(['Id', 'y'])
+    for i in range(len(y_pred)):
+        writer.writerow([i, y_pred[i]])

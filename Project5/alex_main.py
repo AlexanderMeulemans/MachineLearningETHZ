@@ -15,7 +15,7 @@ preprocess_dir = "./preprocessed/"
 X, X_test = (preprocess_data(preprocess_dir, "eeg1") if
                 should_preprocess else load_data(preprocess_dir, "eeg1"))
 Y = np.ravel(np.asarray(pd.read_csv('train_labels.csv', sep=',', index_col=0)))
-
+#%%
 print('\n********* Training AlexClassifier')
 model_alex = AlexClassifier(depth=3)
 model_alex.fit(X,Y)
