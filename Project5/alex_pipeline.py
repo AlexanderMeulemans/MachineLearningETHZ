@@ -41,7 +41,7 @@ def grid_treepipe_search(pipeline,X,Y):
     bootstrap = [True, False]
     percentiles = [80,90,100]
     # Create the random grid
-    print('running random grid search')
+    print('\n********* Performing Grid Search')
     random_grid = {'MI__percentile': percentiles,
                    'model__n_estimators': n_estimators,
                    'model__max_features': max_features,
@@ -63,7 +63,7 @@ def grid_treepipe_search(pipeline,X,Y):
     return grid_search_rand
 
 if should_preprocess:
-    print('------ preprocessing data -------')
+    print('\n********* Preprocessing Data')
     if not os.path.exists(preprocessed_data_dir):
         os.makedirs(preprocessed_data_dir)
 
@@ -75,7 +75,7 @@ if should_preprocess:
 
     np.save(preprocessed_data_dir + "X.npy", X)
     np.save(preprocessed_data_dir + "X_test.npy", X_test)
-    print("------- done processing! -------")
+    print('\n********* Done Processing')
 
 else:
     X = np.load(preprocessed_data_dir + "X.npy")
@@ -87,8 +87,8 @@ Y = np.asarray(Y)
 Y = np.ravel(Y)
 
 
-print('------ Training Classifier -------')
-model_alex = AlexClassifier(depth=5)
+print('\n********* Training AlexClassifier')
+model_alex = AlexClassifier(depth=3)
 model_alex.fit(X,Y)
 
 y_prob = model_alex.predict(X)
@@ -114,7 +114,7 @@ y_pred = model_alex.predict(X_test)
 # pipeline.fit(X, Y)
 # y_pred = pipeline.predict(X_test)
 
-print('writing to file')
+print('\n********* Writing to file')
 with open('result.csv', mode='w') as csv_file:
     writer = csv.writer(csv_file, delimiter=',')
     writer.writerow(['Id', 'y'])
