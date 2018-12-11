@@ -21,7 +21,7 @@ def feature_extractor_eeg(X):
     idx_beta2 = math.ceil(37.50/Fs*X_len)
     idx_gamma = math.ceil(X_len/2-1)
 
-    X = np.fft.rfft(X)
+    X = np.fft.fft(X)
     X = np.abs(X)
 
     E_total = np.sum(np.power(X,2),1)
