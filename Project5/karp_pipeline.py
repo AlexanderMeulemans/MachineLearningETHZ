@@ -1,8 +1,9 @@
 from sklearn import preprocessing
-from sklearn.model_selection import cross_val_predict, KFold
+from sklearn.model_selection import cross_val_score, KFold
 from sklearn.pipeline import Pipeline
-from sklearn.svm import SVC
-from sklearn.metrics import balanced_accuracy_score
+from sklearn.svm import SVC,LinearSVC
+from sklearn.metrics import balanced_accuracy_score, make_scorer
+from sklearn.linear_model import LogisticRegression
 from alex_pipeline_utils import *
 import sklearn.ensemble as skl
 import csv
@@ -27,41 +28,40 @@ Y = np.ravel(np.asarray(pd.read_csv('train_labels.csv', sep=',', index_col=0)))
 if should_add_before_after:
     X1 = np.zeros(X.shape)
     X1[0,:] = 3*X[0,:]
+    X1[1,:] = 3*X[1,:]
     X1[-1,:] = 3*X[-1,:]
-    for i in range(1,len(X)-1):
+    X1[-2,:] = 3*X[-2,:]
+    for i in range(2,len(X)-2):
         X1[i,:] = X[i-1,:] + X[i,:] + X[i+1,:]
     X = X1
     
     
     X1 = np.zeros(X_test.shape)
     X1[0,:] = 3*X_test[0,:]
+    X1[1,:] = 3*X_test[1,:]
     X1[-1,:] = 3*X_test[-1,:]
-    for i in range(1,len(X_test)-1):
+    X1[-2,:] = 3*X_test[-2,:]
+    for i in range(2,len(X_test)-2):
         X1[i,:] = X_test[i-1,:] + X_test[i,:] + X_test[i+1,:]
     X_test = X1
 
 #%%
 print('------ Training classifier with CV -------')
-#model = skl.RandomForestClassifier(class_weight='balanced',n_estimators=100)
-
-model = SVC(class_weight='balanced')
+model1 = LinearSVC(class_weight='balanced',max_iter=3000,dual=False)
+model2 = SVC(class_weight='balanced')
+model3 = LogisticRegression(class_weight='balanced',solver='lbfgs',multi_class='auto')
+model = skl.VotingClassifier([('LinearSVC',model1),('SVC',model2),('logreg',model3)])
 model = Pipeline([('standardizer', preprocessing.StandardScaler()),
                     ('model',model)
                     ])
-
+scorer = make_scorer(balanced_accuracy_score)
 cv = KFold(n_splits=3,shuffle=False)
-Y_pred = cross_val_predict(model, X, Y, cv=cv)
-score = balanced_accuracy_score(Y, Y_pred)
+score = cross_val_score(model, X, Y, cv=cv,scoring=scorer)
 print('balanced accuracy score: ' + str(score))
 
 model.fit(X,Y)
 #%%
-plt.figure(1)
-plt.plot(Y_pred,'x')
-y_pred=model.predict(X_test)
-plt.figure(2)
-plt.plot(y_pred,'x')
-#%%
+y_pred = model.predict(X_test)
 
 print('\n********* Writing to file')
 with open('result.csv', mode='w') as csv_file:
