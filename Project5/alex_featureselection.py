@@ -52,7 +52,7 @@ def feature_extractor_eeg(X):
     return features
 
 def feature_extractor_emg(emg):
-    emg_feat = np.zeros([len(emg),3])
+    emg_feat = np.zeros([len(emg),4])
     E_total=np.sum(np.power(emg,2),1)
     emg_feat[:,0]=np.reshape(E_total,(E_total.shape[0]))
     for i in range(len(emg)):
@@ -60,4 +60,20 @@ def feature_extractor_emg(emg):
         data = hist[0]
         emg_feat[i,1] = -(data*np.ma.log(np.abs(data))).sum()
     emg_feat[:,2] = np.percentile(emg,axis = 1, q=75)
+    emg_feat[:,3] = np.std(emg,1)
     return emg_feat
+
+def total_feature_extractor(eeg1, eeg2, emg):
+    eeg1 = feature_extractor_eeg(eeg1)
+    eeg2 = feature_extractor_eeg(eeg2)
+    emg = feature_extractor_emg(emg)
+    total_features = np.empty((eeg1.shape[0],eeg1.shape[1]+emg.shape[1]))
+    total_features[:,0:eeg1.shape[1]-3] = eeg1[:,0:-3] + eeg2[:,0:-3]
+    total_features[:,eeg1.shape[1]-3] = np.divide(total_features[:,4],total_features[:,2]+total_features[:,3])
+    total_features[:, eeg1.shape[1] - 2] = np.divide(total_features[:, 2], total_features[:, 4] + total_features[:, 3])
+    total_features[:, eeg1.shape[1] - 1] = np.divide(total_features[:, 3], total_features[:, 2] + total_features[:, 4])
+    total_features[:, eeg1.shape[1]:] = emg
+    return total_features
+
+
+

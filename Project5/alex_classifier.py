@@ -4,8 +4,11 @@ from sklearn.model_selection import cross_val_predict, KFold
 from sklearn.metrics import f1_score, make_scorer, balanced_accuracy_score
 from sklearn.impute import SimpleImputer
 import sklearn.ensemble as skl
+from sklearn.feature_selection import SelectPercentile, mutual_info_classif
+from imblearn.ensemble import BalancedBaggingClassifier
 from sklearn.model_selection import RandomizedSearchCV
 import numpy as np
+from sklearn.svm import SVC
 import imblearn.ensemble as imb
 from imblearn.pipeline import Pipeline
 
@@ -19,7 +22,8 @@ class AlexClassifier(object):
             self.pipelines += [
                 Pipeline([
                     ('standardizer', preprocessing.StandardScaler()),
-                    ('model', skl.RandomForestClassifier(class_weight='balanced',n_estimators = 100))
+                    #('MI', SelectPercentile(mutual_info_classif,percentile=90))
+                    ('model', BalancedBaggingClassifier(base_estimator=SVC(class_weight='balanced'), n_estimators=100))
                 ])
             ]
 
